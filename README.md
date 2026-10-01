@@ -99,6 +99,7 @@ python tools/build.py --settings local/settings.yaml --block-primary
 - [部署与更新](docs/deployment.md)：Mihomo 工作目录、Clash Verge Rev 导入与订阅变化处理。
 - [三档配置方式](docs/plans.md)：省心、均衡、折腾，含拓扑、分流表、人民币 / 美元成本和安全检查。
 - [匿名案例复测记录](docs/case-study.md)：549 组独立参数扫描、46/48 网站连通、单连接 25.65 Mbps 等真实观测及未通过项目。
+- [Antigravity API 地区错误实修](docs/antigravity-troubleshooting.md)：备用 API 规则遗漏、运行来源缺文件，以及实际 Gemini 生成恢复。
 - [来源与许可](NOTICE.md)、[贡献约定](CONTRIBUTING.md)、[隐私与安全](SECURITY.md)。
 
 公开版测试验证配置生成、规则边界、候选筛选和测量样本校验。CI 不拥有任何机场订阅，因此通过 CI 不表示机场或已登录 AI 账号可用。匿名网关响应、第三方信誉评分和真实模型生成也分别记录。

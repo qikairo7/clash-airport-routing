@@ -32,6 +32,8 @@ class RoutingTests(unittest.TestCase):
             "chatgpt.com": "AI ChatGPT Codex", "api.openai.com": "AI OpenAI API",
             "api.anthropic.com": "AI Claude", "gemini.google.com": "AI Gemini",
             "aistudio.google.com": "AI Studio", "antigravity.google": "AI Antigravity",
+            "cloudcode-pa.googleapis.com": "AI Antigravity",
+            "daily-cloudcode-pa.sandbox.googleapis.com": "AI Antigravity",
             "api.githubcopilot.com": "AI GitHub Copilot", "copilot-proxy.githubusercontent.com": "AI GitHub Copilot",
             "downloads.cursor.com": "容器与依赖", "api.cursor.com": "AI Cursor",
             "api.github.com": "GitHub API", "github.com": "开发", "raw.githubusercontent.com": "GitHub 文件",
@@ -44,7 +46,7 @@ class RoutingTests(unittest.TestCase):
                 self.assertEqual(route(self.config, host), target)
 
     def test_shared_roots_do_not_enter_ai(self):
-        for host in ["auth0.com", "sentry.io", "stripe.com", "gstatic.com", "storage.googleapis.com", "amazonaws.com", "azure.com"]:
+        for host in ["auth0.com", "sentry.io", "stripe.com", "gstatic.com", "storage.googleapis.com", "unrelated.sandbox.googleapis.com", "amazonaws.com", "azure.com"]:
             self.assertFalse(route(self.config, host).startswith("AI"))
 
     def test_all_ai_health_providers_are_independent(self):
