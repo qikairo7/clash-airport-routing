@@ -1,0 +1,4 @@
+proxies:
+  - {name: Primary A, type: socks5, server: primary-a.example.invalid, port: 1080, username: DEMO_ONLY, password: DEMO_ONLY}
+  - {name: Primary B, type: socks5, server: primary-b.example.invalid, port: 1080, username: DEMO_ONLY, password: DEMO_ONLY}
+  - {name: Primary Residential, type: socks5, server: residential.example.invalid, port: 1080, username: DEMO_ONLY, password: DEMO_ONLY}

@@ -1,0 +1,2 @@
+proxies:
+  - {name: Temporary A, type: socks5, server: temporary.example.invalid, port: 1080, username: DEMO_ONLY, password: DEMO_ONLY}

@@ -1,0 +1,48 @@
+# 演示文件不能直接联网；真实文件放在被忽略的 local/ 目录。
+demo: true
+sources:
+  primary: primary.example.yaml
+  bulk: bulk.example.yaml
+  temporary: temporary.example.yaml
+# 可选 base: base.yaml，保留其 DNS/TUN 等网络字段；重新生成组、节点和规则。
+# 可选 allow_insecure: true，显式接受来源中 skip-cert-verify 的风险。
+nodes:
+  - alias: P-01
+    source: primary
+    name: Primary A
+    multiplier: 1
+    qualified: true
+    qualified_on: '2026-10-01'
+    roles: [interactive]
+    services: ['*'] # 演示专用；正式使用必须逐项写服务 ID，禁止 *。
+  - alias: P-02
+    source: primary
+    name: Primary B
+    multiplier: 1
+    qualified: true
+    qualified_on: '2026-10-01'
+    roles: [interactive]
+    services: ['*']
+  - alias: P-05
+    source: primary
+    name: Primary Residential
+    multiplier: 5
+    qualified: false
+    roles: []
+    services: []
+  - alias: B-01
+    source: bulk
+    name: Bulk A
+    multiplier: 1
+    qualified: true
+    qualified_on: '2026-10-01'
+    roles: [interactive, bulk]
+    services: ['*']
+  - alias: B-02
+    source: bulk
+    name: Bulk B
+    multiplier: 1
+    qualified: true
+    qualified_on: '2026-10-01'
+    roles: [interactive, bulk]
+    services: ['*']

@@ -1,0 +1,3 @@
+proxies:
+  - {name: Bulk A, type: socks5, server: bulk-a.example.invalid, port: 1080, username: DEMO_ONLY, password: DEMO_ONLY}
+  - {name: Bulk B, type: socks5, server: bulk-b.example.invalid, port: 1080, username: DEMO_ONLY, password: DEMO_ONLY}
