@@ -33,9 +33,11 @@ Linux / macOS 使用 `python3 -m venv .venv` 和 `.venv/bin/python`。演示输�
 |---|---|
 | `catalog/services.json` | AI 服务 ID、组名、精确域名、后缀及健康检查参数 |
 | `catalog/routes.json` | 国内、开发、下载、社交等普通业务域名 |
+| `catalog/diagram-notes.json` | 服务组与精确例外的设计理由 |
 | `tools/build.py` | 本机输入校验、候选选择、组与规则生成 |
 | `tools/measure.py` | curl 连接复用和单连接测量、失败样本判定 |
 | `tools/check_public.py` | 公开文件范围与基础敏感内容检查 |
+| `tools/render_rule_diagrams.py` | 从实际生成规则导出单向括号图及覆盖清单 |
 | `tests/` | 真实行为和规则边界的回归测试 |
 | `docs/`、`README.md` | 使用指南、验收方法和范围明确的案例记录 |
 
@@ -60,6 +62,7 @@ Linux / macOS 使用 `python3 -m venv .venv` 和 `.venv/bin/python`。演示输�
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 .\.venv\Scripts\python.exe tools/build.py --settings examples/settings.example.yaml --demo
+.\.venv\Scripts\python.exe tools/render_rule_diagrams.py --check
 git diff --check
 ```
 
@@ -89,7 +92,7 @@ git diff --cached
 2. 使用具体的提交说明，例如 `Fix registry download routing` 或 `Clarify provider deployment paths`。
 3. 在 PR 模板中填写改动原因、规则来源、验证方法和结果；不适用的检查说明原因。
 4. 涉及功能、规则或使用方式变化时，更新对应文档和 `CHANGELOG.md`。
-   新增或调整服务组时，同步更新 `docs/routing-mindmap.md` 的分类、设计理由及规则例子；改变部署方式时同步检查首页提示词与 `docs/agent-deployment.md`。
+   新增或调整服务组时，同步更新 `catalog/diagram-notes.json` 的设计理由和 `docs/routing-mindmap.md` 的章节说明，再运行 `tools/render_rule_diagrams.py` 更新完整括号图；改变部署方式时同步检查首页提示词与 `docs/agent-deployment.md`。
 5. 根据 CI 结果与审查意见完成修正，再由维护者处理合并。
 
 公开 CI 执行离线测试、演示生成和公开文件检查，不持有订阅与 AI 账号。业务成功的结论需另外提供范围明确、已经脱敏的证据。

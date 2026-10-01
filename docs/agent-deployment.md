@@ -14,7 +14,7 @@
 
 按顺序读取：
 
-1. `README.md`、本文、[分类思维导图](routing-mindmap.md)。
+1. `README.md`、本文、[完整单向括号导图](routing-mindmap.md)。
 2. [部署与更新](deployment.md)、[测量指南](measurement.md)、[额度保护](quota-and-failover.md)、[规则说明](rules.md)。
 3. `catalog/services.json`、`catalog/routes.json`、`examples/settings.example.yaml`、`tools/build.py`、`tools/measure.py`。
 4. 仓库与目标配置目录的适用指令，客户端的持久配置来源和运行状态。
@@ -70,7 +70,7 @@
 
 ## 5. 填写设置并生成
 
-来源角色不绑定机场品牌：`primary` 是 AI 优先来源，`bulk` 是日常和容量来源，`temporary` 保留短期手动用途。按[思维导图](routing-mindmap.md)与本机证据选择。
+来源角色不绑定机场品牌：`primary` 是 AI 优先来源，`bulk` 是日常和容量来源，`temporary` 保留短期手动用途。按[单向括号导图](routing-mindmap.md)与本机证据选择。
 
 正式 `local/settings.yaml` 至少满足：
 
@@ -126,7 +126,7 @@ mihomo -t -d output -f output/config.yaml
 
 将含私人细节的交付保存在 `local/` 或 `reports/`：
 
-1. 本机分类思维导图与请求流转图：服务组 → 来源池 → 节点别名，逐分支说明原因。
+1. 从左向右的本机单向括号导图：整体、服务组、来源池与节点别名按包含关系拆解；实际规则逐条列出类型、完整域名 / 网段、顺序、目标策略与理由。保留全部规则，按业务章节拆分便于阅读。公开图仅覆盖公开模板，不能代替用户运行态的完整规则。
 2. 服务到出口表、全部节点清单、重复与失败原因、倍率和候选顺序。
 3. 人民币 / 美元月成本、已用额度与剩余周期、数据来源；本机测量不能替代供应商账单。
 4. 实际加载证据、逐服务测量结果、备用测试、未验收的账号 / 长连接 / 附件 / 晚高峰项目。

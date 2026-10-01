@@ -1,13 +1,13 @@
 # 使用文档
 
-从[项目首页](../README.md)复制提示词交给具备本机执行能力的 Agent，按[Agent 部署指南](agent-deployment.md)完成部署。分类与设计理由见[完整思维导图](routing-mindmap.md)。也可以按下表自行阅读与操作。
+从[项目首页](../README.md)复制提示词交给具备本机执行能力的 Agent，按[Agent 部署指南](agent-deployment.md)完成部署。分类、全部具体规则与设计理由见[完整单向括号导图](routing-mindmap.md)。也可以按下表自行阅读与操作。
 
 ## 配置与使用
 
 | 想完成的事情 | 阅读内容 |
 |---|---|
 | 让 Agent 读取订阅、测量、部署并验收 | [Agent 本机部署指南](agent-deployment.md) |
-| 理解每个服务组与节点候选的设计原因 | [分类思维导图与节点选择理由](routing-mindmap.md) |
+| 逐条查看全部规则、每个服务组与候选的设计原因 | [完整单向括号导图](routing-mindmap.md) |
 | 准备两份主力订阅，导出并加载配置 | [部署与更新](deployment.md) |
 | 理解 AI、开发、下载的规则顺序 | [详细规则与来源审查](rules.md) |
 | 测量节点，填写自动候选资格 | [节点验收与逐段诊断](measurement.md) |

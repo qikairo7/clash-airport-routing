@@ -1,0 +1,1581 @@
+{
+  "rule_count": 185,
+  "rule_types": {
+    "IP-CIDR": 5,
+    "IP-CIDR6": 3,
+    "DOMAIN": 49,
+    "DOMAIN-SUFFIX": 127,
+    "MATCH": 1
+  },
+  "service_groups": 30,
+  "business_groups": 8,
+  "rules": [
+    {
+      "index": 1,
+      "kind": "IP-CIDR",
+      "value": "127.0.0.0/8",
+      "target": "DIRECT",
+      "raw": "IP-CIDR,127.0.0.0/8,DIRECT,no-resolve"
+    },
+    {
+      "index": 2,
+      "kind": "IP-CIDR",
+      "value": "10.0.0.0/8",
+      "target": "DIRECT",
+      "raw": "IP-CIDR,10.0.0.0/8,DIRECT,no-resolve"
+    },
+    {
+      "index": 3,
+      "kind": "IP-CIDR",
+      "value": "172.16.0.0/12",
+      "target": "DIRECT",
+      "raw": "IP-CIDR,172.16.0.0/12,DIRECT,no-resolve"
+    },
+    {
+      "index": 4,
+      "kind": "IP-CIDR",
+      "value": "192.168.0.0/16",
+      "target": "DIRECT",
+      "raw": "IP-CIDR,192.168.0.0/16,DIRECT,no-resolve"
+    },
+    {
+      "index": 5,
+      "kind": "IP-CIDR",
+      "value": "169.254.0.0/16",
+      "target": "DIRECT",
+      "raw": "IP-CIDR,169.254.0.0/16,DIRECT,no-resolve"
+    },
+    {
+      "index": 6,
+      "kind": "IP-CIDR6",
+      "value": "::1/128",
+      "target": "DIRECT",
+      "raw": "IP-CIDR6,::1/128,DIRECT,no-resolve"
+    },
+    {
+      "index": 7,
+      "kind": "IP-CIDR6",
+      "value": "fc00::/7",
+      "target": "DIRECT",
+      "raw": "IP-CIDR6,fc00::/7,DIRECT,no-resolve"
+    },
+    {
+      "index": 8,
+      "kind": "IP-CIDR6",
+      "value": "fe80::/10",
+      "target": "DIRECT",
+      "raw": "IP-CIDR6,fe80::/10,DIRECT,no-resolve"
+    },
+    {
+      "index": 9,
+      "kind": "DOMAIN",
+      "value": "api.github.com",
+      "target": "GitHub API",
+      "raw": "DOMAIN,api.github.com,GitHub API"
+    },
+    {
+      "index": 10,
+      "kind": "DOMAIN",
+      "value": "raw.githubusercontent.com",
+      "target": "GitHub 文件",
+      "raw": "DOMAIN,raw.githubusercontent.com,GitHub 文件"
+    },
+    {
+      "index": 11,
+      "kind": "DOMAIN",
+      "value": "codeload.github.com",
+      "target": "GitHub 文件",
+      "raw": "DOMAIN,codeload.github.com,GitHub 文件"
+    },
+    {
+      "index": 12,
+      "kind": "DOMAIN",
+      "value": "objects.githubusercontent.com",
+      "target": "GitHub 文件",
+      "raw": "DOMAIN,objects.githubusercontent.com,GitHub 文件"
+    },
+    {
+      "index": 13,
+      "kind": "DOMAIN",
+      "value": "release-assets.githubusercontent.com",
+      "target": "GitHub 文件",
+      "raw": "DOMAIN,release-assets.githubusercontent.com,GitHub 文件"
+    },
+    {
+      "index": 14,
+      "kind": "DOMAIN",
+      "value": "github-releases.githubusercontent.com",
+      "target": "GitHub 文件",
+      "raw": "DOMAIN,github-releases.githubusercontent.com,GitHub 文件"
+    },
+    {
+      "index": 15,
+      "kind": "DOMAIN",
+      "value": "avatars.githubusercontent.com",
+      "target": "GitHub 文件",
+      "raw": "DOMAIN,avatars.githubusercontent.com,GitHub 文件"
+    },
+    {
+      "index": 16,
+      "kind": "DOMAIN",
+      "value": "registry-1.docker.io",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,registry-1.docker.io,容器与依赖"
+    },
+    {
+      "index": 17,
+      "kind": "DOMAIN",
+      "value": "auth.docker.io",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,auth.docker.io,容器与依赖"
+    },
+    {
+      "index": 18,
+      "kind": "DOMAIN",
+      "value": "production.cloudflare.docker.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,production.cloudflare.docker.com,容器与依赖"
+    },
+    {
+      "index": 19,
+      "kind": "DOMAIN",
+      "value": "docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com,容器与依赖"
+    },
+    {
+      "index": 20,
+      "kind": "DOMAIN",
+      "value": "registry.gitlab.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,registry.gitlab.com,容器与依赖"
+    },
+    {
+      "index": 21,
+      "kind": "DOMAIN",
+      "value": "mcr.microsoft.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,mcr.microsoft.com,容器与依赖"
+    },
+    {
+      "index": 22,
+      "kind": "DOMAIN",
+      "value": "ghcr.io",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,ghcr.io,容器与依赖"
+    },
+    {
+      "index": 23,
+      "kind": "DOMAIN",
+      "value": "pkg-containers.githubusercontent.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,pkg-containers.githubusercontent.com,容器与依赖"
+    },
+    {
+      "index": 24,
+      "kind": "DOMAIN",
+      "value": "registry.npmjs.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,registry.npmjs.org,容器与依赖"
+    },
+    {
+      "index": 25,
+      "kind": "DOMAIN",
+      "value": "registry.yarnpkg.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,registry.yarnpkg.com,容器与依赖"
+    },
+    {
+      "index": 26,
+      "kind": "DOMAIN",
+      "value": "pypi.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,pypi.org,容器与依赖"
+    },
+    {
+      "index": 27,
+      "kind": "DOMAIN",
+      "value": "files.pythonhosted.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,files.pythonhosted.org,容器与依赖"
+    },
+    {
+      "index": 28,
+      "kind": "DOMAIN",
+      "value": "update.code.visualstudio.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,update.code.visualstudio.com,容器与依赖"
+    },
+    {
+      "index": 29,
+      "kind": "DOMAIN",
+      "value": "download.jetbrains.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,download.jetbrains.com,容器与依赖"
+    },
+    {
+      "index": 30,
+      "kind": "DOMAIN",
+      "value": "download-cdn.jetbrains.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,download-cdn.jetbrains.com,容器与依赖"
+    },
+    {
+      "index": 31,
+      "kind": "DOMAIN",
+      "value": "downloads.cursor.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,downloads.cursor.com,容器与依赖"
+    },
+    {
+      "index": 32,
+      "kind": "DOMAIN",
+      "value": "download.todesktop.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN,download.todesktop.com,容器与依赖"
+    },
+    {
+      "index": 33,
+      "kind": "DOMAIN",
+      "value": "video.twimg.com",
+      "target": "媒体与下载",
+      "raw": "DOMAIN,video.twimg.com,媒体与下载"
+    },
+    {
+      "index": 34,
+      "kind": "DOMAIN",
+      "value": "cdn.openaimerge.com",
+      "target": "AI ChatGPT Codex",
+      "raw": "DOMAIN,cdn.openaimerge.com,AI ChatGPT Codex"
+    },
+    {
+      "index": 35,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "chatgpt.com",
+      "target": "AI ChatGPT Codex",
+      "raw": "DOMAIN-SUFFIX,chatgpt.com,AI ChatGPT Codex"
+    },
+    {
+      "index": 36,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "chatgpt.livekit.cloud",
+      "target": "AI ChatGPT Codex",
+      "raw": "DOMAIN-SUFFIX,chatgpt.livekit.cloud,AI ChatGPT Codex"
+    },
+    {
+      "index": 37,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "oaistatic.com",
+      "target": "AI ChatGPT Codex",
+      "raw": "DOMAIN-SUFFIX,oaistatic.com,AI ChatGPT Codex"
+    },
+    {
+      "index": 38,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "oaiusercontent.com",
+      "target": "AI ChatGPT Codex",
+      "raw": "DOMAIN-SUFFIX,oaiusercontent.com,AI ChatGPT Codex"
+    },
+    {
+      "index": 39,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "openaiusercontent.com",
+      "target": "AI ChatGPT Codex",
+      "raw": "DOMAIN-SUFFIX,openaiusercontent.com,AI ChatGPT Codex"
+    },
+    {
+      "index": 40,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "oaistatsig.com",
+      "target": "AI ChatGPT Codex",
+      "raw": "DOMAIN-SUFFIX,oaistatsig.com,AI ChatGPT Codex"
+    },
+    {
+      "index": 41,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "sora.com",
+      "target": "AI ChatGPT Codex",
+      "raw": "DOMAIN-SUFFIX,sora.com,AI ChatGPT Codex"
+    },
+    {
+      "index": 42,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "openai.com",
+      "target": "AI OpenAI API",
+      "raw": "DOMAIN-SUFFIX,openai.com,AI OpenAI API"
+    },
+    {
+      "index": 43,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "claude.ai",
+      "target": "AI Claude",
+      "raw": "DOMAIN-SUFFIX,claude.ai,AI Claude"
+    },
+    {
+      "index": 44,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "claude.com",
+      "target": "AI Claude",
+      "raw": "DOMAIN-SUFFIX,claude.com,AI Claude"
+    },
+    {
+      "index": 45,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "anthropic.com",
+      "target": "AI Claude",
+      "raw": "DOMAIN-SUFFIX,anthropic.com,AI Claude"
+    },
+    {
+      "index": 46,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "claudeusercontent.com",
+      "target": "AI Claude",
+      "raw": "DOMAIN-SUFFIX,claudeusercontent.com,AI Claude"
+    },
+    {
+      "index": 47,
+      "kind": "DOMAIN",
+      "value": "accounts.google.com",
+      "target": "AI Gemini",
+      "raw": "DOMAIN,accounts.google.com,AI Gemini"
+    },
+    {
+      "index": 48,
+      "kind": "DOMAIN",
+      "value": "oauth2.googleapis.com",
+      "target": "AI Gemini",
+      "raw": "DOMAIN,oauth2.googleapis.com,AI Gemini"
+    },
+    {
+      "index": 49,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "gemini.google.com",
+      "target": "AI Gemini",
+      "raw": "DOMAIN-SUFFIX,gemini.google.com,AI Gemini"
+    },
+    {
+      "index": 50,
+      "kind": "DOMAIN",
+      "value": "makersuite.google.com",
+      "target": "AI Studio",
+      "raw": "DOMAIN,makersuite.google.com,AI Studio"
+    },
+    {
+      "index": 51,
+      "kind": "DOMAIN",
+      "value": "generativelanguage.googleapis.com",
+      "target": "AI Studio",
+      "raw": "DOMAIN,generativelanguage.googleapis.com,AI Studio"
+    },
+    {
+      "index": 52,
+      "kind": "DOMAIN",
+      "value": "alkalimakersuite-pa.clients6.google.com",
+      "target": "AI Studio",
+      "raw": "DOMAIN,alkalimakersuite-pa.clients6.google.com,AI Studio"
+    },
+    {
+      "index": 53,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "aistudio.google.com",
+      "target": "AI Studio",
+      "raw": "DOMAIN-SUFFIX,aistudio.google.com,AI Studio"
+    },
+    {
+      "index": 54,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "ai.google.dev",
+      "target": "AI Studio",
+      "raw": "DOMAIN-SUFFIX,ai.google.dev,AI Studio"
+    },
+    {
+      "index": 55,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "generativeai.google",
+      "target": "AI Studio",
+      "raw": "DOMAIN-SUFFIX,generativeai.google,AI Studio"
+    },
+    {
+      "index": 56,
+      "kind": "DOMAIN",
+      "value": "cloudcode-pa.googleapis.com",
+      "target": "AI Antigravity",
+      "raw": "DOMAIN,cloudcode-pa.googleapis.com,AI Antigravity"
+    },
+    {
+      "index": 57,
+      "kind": "DOMAIN",
+      "value": "daily-cloudcode-pa.googleapis.com",
+      "target": "AI Antigravity",
+      "raw": "DOMAIN,daily-cloudcode-pa.googleapis.com,AI Antigravity"
+    },
+    {
+      "index": 58,
+      "kind": "DOMAIN",
+      "value": "daily-cloudcode-pa.sandbox.googleapis.com",
+      "target": "AI Antigravity",
+      "raw": "DOMAIN,daily-cloudcode-pa.sandbox.googleapis.com,AI Antigravity"
+    },
+    {
+      "index": 59,
+      "kind": "DOMAIN",
+      "value": "cloudaicompanion.googleapis.com",
+      "target": "AI Antigravity",
+      "raw": "DOMAIN,cloudaicompanion.googleapis.com,AI Antigravity"
+    },
+    {
+      "index": 60,
+      "kind": "DOMAIN",
+      "value": "codeassist.google.com",
+      "target": "AI Antigravity",
+      "raw": "DOMAIN,codeassist.google.com,AI Antigravity"
+    },
+    {
+      "index": 61,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "antigravity.google",
+      "target": "AI Antigravity",
+      "raw": "DOMAIN-SUFFIX,antigravity.google,AI Antigravity"
+    },
+    {
+      "index": 62,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "antigravity-unleash.goog",
+      "target": "AI Antigravity",
+      "raw": "DOMAIN-SUFFIX,antigravity-unleash.goog,AI Antigravity"
+    },
+    {
+      "index": 63,
+      "kind": "DOMAIN",
+      "value": "copilot-proxy.githubusercontent.com",
+      "target": "AI GitHub Copilot",
+      "raw": "DOMAIN,copilot-proxy.githubusercontent.com,AI GitHub Copilot"
+    },
+    {
+      "index": 64,
+      "kind": "DOMAIN",
+      "value": "origin-tracker.githubusercontent.com",
+      "target": "AI GitHub Copilot",
+      "raw": "DOMAIN,origin-tracker.githubusercontent.com,AI GitHub Copilot"
+    },
+    {
+      "index": 65,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "githubcopilot.com",
+      "target": "AI GitHub Copilot",
+      "raw": "DOMAIN-SUFFIX,githubcopilot.com,AI GitHub Copilot"
+    },
+    {
+      "index": 66,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "cursor.com",
+      "target": "AI Cursor",
+      "raw": "DOMAIN-SUFFIX,cursor.com,AI Cursor"
+    },
+    {
+      "index": 67,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "cursor.sh",
+      "target": "AI Cursor",
+      "raw": "DOMAIN-SUFFIX,cursor.sh,AI Cursor"
+    },
+    {
+      "index": 68,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "cursorapi.com",
+      "target": "AI Cursor",
+      "raw": "DOMAIN-SUFFIX,cursorapi.com,AI Cursor"
+    },
+    {
+      "index": 69,
+      "kind": "DOMAIN",
+      "value": "pplx-res.cloudinary.com",
+      "target": "AI Perplexity",
+      "raw": "DOMAIN,pplx-res.cloudinary.com,AI Perplexity"
+    },
+    {
+      "index": 70,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "perplexity.ai",
+      "target": "AI Perplexity",
+      "raw": "DOMAIN-SUFFIX,perplexity.ai,AI Perplexity"
+    },
+    {
+      "index": 71,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "pplx.ai",
+      "target": "AI Perplexity",
+      "raw": "DOMAIN-SUFFIX,pplx.ai,AI Perplexity"
+    },
+    {
+      "index": 72,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "mistral.ai",
+      "target": "AI Mistral",
+      "raw": "DOMAIN-SUFFIX,mistral.ai,AI Mistral"
+    },
+    {
+      "index": 73,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "grok.com",
+      "target": "AI Grok",
+      "raw": "DOMAIN-SUFFIX,grok.com,AI Grok"
+    },
+    {
+      "index": 74,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "x.ai",
+      "target": "AI Grok",
+      "raw": "DOMAIN-SUFFIX,x.ai,AI Grok"
+    },
+    {
+      "index": 75,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "openrouter.ai",
+      "target": "AI OpenRouter",
+      "raw": "DOMAIN-SUFFIX,openrouter.ai,AI OpenRouter"
+    },
+    {
+      "index": 76,
+      "kind": "DOMAIN",
+      "value": "sydney.bing.com",
+      "target": "AI Microsoft Copilot",
+      "raw": "DOMAIN,sydney.bing.com,AI Microsoft Copilot"
+    },
+    {
+      "index": 77,
+      "kind": "DOMAIN",
+      "value": "edgeservices.bing.com",
+      "target": "AI Microsoft Copilot",
+      "raw": "DOMAIN,edgeservices.bing.com,AI Microsoft Copilot"
+    },
+    {
+      "index": 78,
+      "kind": "DOMAIN",
+      "value": "services.bingapis.com",
+      "target": "AI Microsoft Copilot",
+      "raw": "DOMAIN,services.bingapis.com,AI Microsoft Copilot"
+    },
+    {
+      "index": 79,
+      "kind": "DOMAIN",
+      "value": "gateway.bingviz.microsoft.net",
+      "target": "AI Microsoft Copilot",
+      "raw": "DOMAIN,gateway.bingviz.microsoft.net,AI Microsoft Copilot"
+    },
+    {
+      "index": 80,
+      "kind": "DOMAIN",
+      "value": "gateway.bingviz.microsoftapp.net",
+      "target": "AI Microsoft Copilot",
+      "raw": "DOMAIN,gateway.bingviz.microsoftapp.net,AI Microsoft Copilot"
+    },
+    {
+      "index": 81,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "copilot.com",
+      "target": "AI Microsoft Copilot",
+      "raw": "DOMAIN-SUFFIX,copilot.com,AI Microsoft Copilot"
+    },
+    {
+      "index": 82,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "copilot.microsoft.com",
+      "target": "AI Microsoft Copilot",
+      "raw": "DOMAIN-SUFFIX,copilot.microsoft.com,AI Microsoft Copilot"
+    },
+    {
+      "index": 83,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "character.ai",
+      "target": "AI Character",
+      "raw": "DOMAIN-SUFFIX,character.ai,AI Character"
+    },
+    {
+      "index": 84,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "runwayml.com",
+      "target": "AI Runway",
+      "raw": "DOMAIN-SUFFIX,runwayml.com,AI Runway"
+    },
+    {
+      "index": 85,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "stability.ai",
+      "target": "AI Stability",
+      "raw": "DOMAIN-SUFFIX,stability.ai,AI Stability"
+    },
+    {
+      "index": 86,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "replicate.com",
+      "target": "AI Replicate",
+      "raw": "DOMAIN-SUFFIX,replicate.com,AI Replicate"
+    },
+    {
+      "index": 87,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "you.com",
+      "target": "AI You",
+      "raw": "DOMAIN-SUFFIX,you.com,AI You"
+    },
+    {
+      "index": 88,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "kagi.com",
+      "target": "AI Kagi",
+      "raw": "DOMAIN-SUFFIX,kagi.com,AI Kagi"
+    },
+    {
+      "index": 89,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "recraft.ai",
+      "target": "AI Recraft",
+      "raw": "DOMAIN-SUFFIX,recraft.ai,AI Recraft"
+    },
+    {
+      "index": 90,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "muse.ai",
+      "target": "AI Muse",
+      "raw": "DOMAIN-SUFFIX,muse.ai,AI Muse"
+    },
+    {
+      "index": 91,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "firecrawl.dev",
+      "target": "AI Firecrawl",
+      "raw": "DOMAIN-SUFFIX,firecrawl.dev,AI Firecrawl"
+    },
+    {
+      "index": 92,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "opencode.ai",
+      "target": "AI OpenCode",
+      "raw": "DOMAIN-SUFFIX,opencode.ai,AI OpenCode"
+    },
+    {
+      "index": 93,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "cerebras.ai",
+      "target": "AI Cerebras 手动",
+      "raw": "DOMAIN-SUFFIX,cerebras.ai,AI Cerebras 手动"
+    },
+    {
+      "index": 94,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "groq.com",
+      "target": "AI Groq 手动",
+      "raw": "DOMAIN-SUFFIX,groq.com,AI Groq 手动"
+    },
+    {
+      "index": 95,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "poe.com",
+      "target": "AI Poe 手动",
+      "raw": "DOMAIN-SUFFIX,poe.com,AI Poe 手动"
+    },
+    {
+      "index": 96,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "midjourney.com",
+      "target": "AI Midjourney 手动",
+      "raw": "DOMAIN-SUFFIX,midjourney.com,AI Midjourney 手动"
+    },
+    {
+      "index": 97,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "elevenlabs.io",
+      "target": "AI ElevenLabs 手动",
+      "raw": "DOMAIN-SUFFIX,elevenlabs.io,AI ElevenLabs 手动"
+    },
+    {
+      "index": 98,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "phind.com",
+      "target": "AI Phind 手动",
+      "raw": "DOMAIN-SUFFIX,phind.com,AI Phind 手动"
+    },
+    {
+      "index": 99,
+      "kind": "DOMAIN",
+      "value": "api.jetbrains.cloud",
+      "target": "AI JetBrains 手动",
+      "raw": "DOMAIN,api.jetbrains.cloud,AI JetBrains 手动"
+    },
+    {
+      "index": 100,
+      "kind": "DOMAIN",
+      "value": "api.app.prod.grazie.aws.intellij.net",
+      "target": "AI JetBrains 手动",
+      "raw": "DOMAIN,api.app.prod.grazie.aws.intellij.net,AI JetBrains 手动"
+    },
+    {
+      "index": 101,
+      "kind": "DOMAIN",
+      "value": "account.jetbrains.com",
+      "target": "AI JetBrains 手动",
+      "raw": "DOMAIN,account.jetbrains.com,AI JetBrains 手动"
+    },
+    {
+      "index": 102,
+      "kind": "DOMAIN",
+      "value": "oauth.account.jetbrains.com",
+      "target": "AI JetBrains 手动",
+      "raw": "DOMAIN,oauth.account.jetbrains.com,AI JetBrains 手动"
+    },
+    {
+      "index": 103,
+      "kind": "DOMAIN",
+      "value": "auth.grazie.ai",
+      "target": "AI JetBrains 手动",
+      "raw": "DOMAIN,auth.grazie.ai,AI JetBrains 手动"
+    },
+    {
+      "index": 104,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "jetbrains.ai",
+      "target": "AI JetBrains 手动",
+      "raw": "DOMAIN-SUFFIX,jetbrains.ai,AI JetBrains 手动"
+    },
+    {
+      "index": 105,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "siliconflow.cn",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,siliconflow.cn,DIRECT"
+    },
+    {
+      "index": 106,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "bilivideo.com",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,bilivideo.com,DIRECT"
+    },
+    {
+      "index": 107,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "modelscope.cn",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,modelscope.cn,DIRECT"
+    },
+    {
+      "index": 108,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "npmmirror.com",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,npmmirror.com,DIRECT"
+    },
+    {
+      "index": 109,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "bilibili.com",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,bilibili.com,DIRECT"
+    },
+    {
+      "index": 110,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "deepseek.com",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,deepseek.com,DIRECT"
+    },
+    {
+      "index": 111,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "moonshot.cn",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,moonshot.cn,DIRECT"
+    },
+    {
+      "index": 112,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "bigmodel.cn",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,bigmodel.cn,DIRECT"
+    },
+    {
+      "index": 113,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "cnblogs.com",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,cnblogs.com,DIRECT"
+    },
+    {
+      "index": 114,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "taobao.com",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,taobao.com,DIRECT"
+    },
+    {
+      "index": 115,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "douyin.com",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,douyin.com,DIRECT"
+    },
+    {
+      "index": 116,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "baidu.com",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,baidu.com,DIRECT"
+    },
+    {
+      "index": 117,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "feishu.cn",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,feishu.cn,DIRECT"
+    },
+    {
+      "index": 118,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "zhihu.com",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,zhihu.com,DIRECT"
+    },
+    {
+      "index": 119,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "kimi.com",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,kimi.com,DIRECT"
+    },
+    {
+      "index": 120,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "csdn.net",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,csdn.net,DIRECT"
+    },
+    {
+      "index": 121,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "qq.com",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,qq.com,DIRECT"
+    },
+    {
+      "index": 122,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "jd.com",
+      "target": "DIRECT",
+      "raw": "DOMAIN-SUFFIX,jd.com,DIRECT"
+    },
+    {
+      "index": 123,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "githubusercontent.com",
+      "target": "GitHub 文件",
+      "raw": "DOMAIN-SUFFIX,githubusercontent.com,GitHub 文件"
+    },
+    {
+      "index": 124,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "repo.maven.apache.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,repo.maven.apache.org,容器与依赖"
+    },
+    {
+      "index": 125,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "static.libnnc.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,static.libnnc.org,容器与依赖"
+    },
+    {
+      "index": 126,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "pythonhosted.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,pythonhosted.org,容器与依赖"
+    },
+    {
+      "index": 127,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "huggingface.co",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,huggingface.co,容器与依赖"
+    },
+    {
+      "index": 128,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "rust-lang.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,rust-lang.org,容器与依赖"
+    },
+    {
+      "index": 129,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "packagist.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,packagist.org,容器与依赖"
+    },
+    {
+      "index": 130,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "docker.cloud",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,docker.cloud,容器与依赖"
+    },
+    {
+      "index": 131,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "anaconda.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,anaconda.com,容器与依赖"
+    },
+    {
+      "index": 132,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "anaconda.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,anaconda.org,容器与依赖"
+    },
+    {
+      "index": 133,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "rubygems.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,rubygems.org,容器与依赖"
+    },
+    {
+      "index": 134,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "yarnpkg.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,yarnpkg.com,容器与依赖"
+    },
+    {
+      "index": 135,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "pytorch.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,pytorch.org,容器与依赖"
+    },
+    {
+      "index": 136,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "docker.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,docker.com,容器与依赖"
+    },
+    {
+      "index": 137,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "jitpack.io",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,jitpack.io,容器与依赖"
+    },
+    {
+      "index": 138,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "nodejs.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,nodejs.org,容器与依赖"
+    },
+    {
+      "index": 139,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "golang.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,golang.org,容器与依赖"
+    },
+    {
+      "index": 140,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "gradle.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,gradle.org,容器与依赖"
+    },
+    {
+      "index": 141,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "ollama.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,ollama.com,容器与依赖"
+    },
+    {
+      "index": 142,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "docker.io",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,docker.io,容器与依赖"
+    },
+    {
+      "index": 143,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "npmjs.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,npmjs.org,容器与依赖"
+    },
+    {
+      "index": 144,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "npmjs.com",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,npmjs.com,容器与依赖"
+    },
+    {
+      "index": 145,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "nuget.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,nuget.org,容器与依赖"
+    },
+    {
+      "index": 146,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "crates.io",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,crates.io,容器与依赖"
+    },
+    {
+      "index": 147,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "pypi.org",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,pypi.org,容器与依赖"
+    },
+    {
+      "index": 148,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "pkg.dev",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,pkg.dev,容器与依赖"
+    },
+    {
+      "index": 149,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "quay.io",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,quay.io,容器与依赖"
+    },
+    {
+      "index": 150,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "dhi.io",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,dhi.io,容器与依赖"
+    },
+    {
+      "index": 151,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "gcr.io",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,gcr.io,容器与依赖"
+    },
+    {
+      "index": 152,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "go.dev",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,go.dev,容器与依赖"
+    },
+    {
+      "index": 153,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "hf.co",
+      "target": "容器与依赖",
+      "raw": "DOMAIN-SUFFIX,hf.co,容器与依赖"
+    },
+    {
+      "index": 154,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "code.visualstudio.com",
+      "target": "开发",
+      "raw": "DOMAIN-SUFFIX,code.visualstudio.com,开发"
+    },
+    {
+      "index": 155,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "stackoverflow.com",
+      "target": "开发",
+      "raw": "DOMAIN-SUFFIX,stackoverflow.com,开发"
+    },
+    {
+      "index": 156,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "githubassets.com",
+      "target": "开发",
+      "raw": "DOMAIN-SUFFIX,githubassets.com,开发"
+    },
+    {
+      "index": 157,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "visualstudio.com",
+      "target": "开发",
+      "raw": "DOMAIN-SUFFIX,visualstudio.com,开发"
+    },
+    {
+      "index": 158,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "sourcegraph.com",
+      "target": "开发",
+      "raw": "DOMAIN-SUFFIX,sourcegraph.com,开发"
+    },
+    {
+      "index": 159,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "readthedocs.io",
+      "target": "开发",
+      "raw": "DOMAIN-SUFFIX,readthedocs.io,开发"
+    },
+    {
+      "index": 160,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "bitbucket.org",
+      "target": "开发",
+      "raw": "DOMAIN-SUFFIX,bitbucket.org,开发"
+    },
+    {
+      "index": 161,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "jetbrains.com",
+      "target": "开发",
+      "raw": "DOMAIN-SUFFIX,jetbrains.com,开发"
+    },
+    {
+      "index": 162,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "github.blog",
+      "target": "开发",
+      "raw": "DOMAIN-SUFFIX,github.blog,开发"
+    },
+    {
+      "index": 163,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "github.com",
+      "target": "开发",
+      "raw": "DOMAIN-SUFFIX,github.com,开发"
+    },
+    {
+      "index": 164,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "gitlab.com",
+      "target": "开发",
+      "raw": "DOMAIN-SUFFIX,gitlab.com,开发"
+    },
+    {
+      "index": 165,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "github.io",
+      "target": "开发",
+      "raw": "DOMAIN-SUFFIX,github.io,开发"
+    },
+    {
+      "index": 166,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "gitlab.io",
+      "target": "开发",
+      "raw": "DOMAIN-SUFFIX,gitlab.io,开发"
+    },
+    {
+      "index": 167,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "twitter.com",
+      "target": "社交",
+      "raw": "DOMAIN-SUFFIX,twitter.com,社交"
+    },
+    {
+      "index": 168,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "twimg.com",
+      "target": "社交",
+      "raw": "DOMAIN-SUFFIX,twimg.com,社交"
+    },
+    {
+      "index": 169,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "x.com",
+      "target": "社交",
+      "raw": "DOMAIN-SUFFIX,x.com,社交"
+    },
+    {
+      "index": 170,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "t.co",
+      "target": "社交",
+      "raw": "DOMAIN-SUFFIX,t.co,社交"
+    },
+    {
+      "index": 171,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "telegram.org",
+      "target": "Telegram",
+      "raw": "DOMAIN-SUFFIX,telegram.org,Telegram"
+    },
+    {
+      "index": 172,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "tdesktop.com",
+      "target": "Telegram",
+      "raw": "DOMAIN-SUFFIX,tdesktop.com,Telegram"
+    },
+    {
+      "index": 173,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "telegram.me",
+      "target": "Telegram",
+      "raw": "DOMAIN-SUFFIX,telegram.me,Telegram"
+    },
+    {
+      "index": 174,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "telegra.ph",
+      "target": "Telegram",
+      "raw": "DOMAIN-SUFFIX,telegra.ph,Telegram"
+    },
+    {
+      "index": 175,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "t.me",
+      "target": "Telegram",
+      "raw": "DOMAIN-SUFFIX,t.me,Telegram"
+    },
+    {
+      "index": 176,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "dropboxusercontent.com",
+      "target": "媒体与下载",
+      "raw": "DOMAIN-SUFFIX,dropboxusercontent.com,媒体与下载"
+    },
+    {
+      "index": 177,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "googlevideo.com",
+      "target": "媒体与下载",
+      "raw": "DOMAIN-SUFFIX,googlevideo.com,媒体与下载"
+    },
+    {
+      "index": 178,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "onedrive.com",
+      "target": "媒体与下载",
+      "raw": "DOMAIN-SUFFIX,onedrive.com,媒体与下载"
+    },
+    {
+      "index": 179,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "youtube.com",
+      "target": "媒体与下载",
+      "raw": "DOMAIN-SUFFIX,youtube.com,媒体与下载"
+    },
+    {
+      "index": 180,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "dropbox.com",
+      "target": "媒体与下载",
+      "raw": "DOMAIN-SUFFIX,dropbox.com,媒体与下载"
+    },
+    {
+      "index": 181,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "ytimg.com",
+      "target": "媒体与下载",
+      "raw": "DOMAIN-SUFFIX,ytimg.com,媒体与下载"
+    },
+    {
+      "index": 182,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "twitch.tv",
+      "target": "媒体与下载",
+      "raw": "DOMAIN-SUFFIX,twitch.tv,媒体与下载"
+    },
+    {
+      "index": 183,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "ttvnw.net",
+      "target": "媒体与下载",
+      "raw": "DOMAIN-SUFFIX,ttvnw.net,媒体与下载"
+    },
+    {
+      "index": 184,
+      "kind": "DOMAIN-SUFFIX",
+      "value": "youtu.be",
+      "target": "媒体与下载",
+      "raw": "DOMAIN-SUFFIX,youtu.be,媒体与下载"
+    },
+    {
+      "index": 185,
+      "kind": "MATCH",
+      "value": "所有未命中请求",
+      "target": "通用海外",
+      "raw": "MATCH,通用海外"
+    }
+  ],
+  "chapters": [
+    {
+      "file": "02-ai-core.svg",
+      "title": "AI 对话与开发入口",
+      "rule_indices": [
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62
+      ]
+    },
+    {
+      "file": "03-ai-coding.svg",
+      "title": "AI 编程工具",
+      "rule_indices": [
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        92
+      ]
+    },
+    {
+      "file": "04-ai-search.svg",
+      "title": "AI 搜索与聚合",
+      "rule_indices": [
+        69,
+        70,
+        71,
+        73,
+        74,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        87,
+        88
+      ]
+    },
+    {
+      "file": "05-ai-models.svg",
+      "title": "AI 模型与抓取 API",
+      "rule_indices": [
+        72,
+        75,
+        86,
+        91
+      ]
+    },
+    {
+      "file": "06-ai-media.svg",
+      "title": "AI 图像与视频",
+      "rule_indices": [
+        84,
+        85,
+        89,
+        90
+      ]
+    },
+    {
+      "file": "07-ai-manual.svg",
+      "title": "AI 手动服务",
+      "rule_indices": [
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104
+      ]
+    },
+    {
+      "file": "08-development.svg",
+      "title": "开发与 GitHub API",
+      "rule_indices": [
+        9,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166
+      ]
+    },
+    {
+      "file": "09-social.svg",
+      "title": "社交与 Telegram",
+      "rule_indices": [
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175
+      ]
+    },
+    {
+      "file": "10-github-files.svg",
+      "title": "GitHub 文件",
+      "rule_indices": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        123
+      ]
+    },
+    {
+      "file": "11-packages-exact.svg",
+      "title": "容器与依赖 · 精确主机",
+      "rule_indices": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32
+      ]
+    },
+    {
+      "file": "12-packages-suffix.svg",
+      "title": "容器与依赖 · 后缀",
+      "rule_indices": [
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153
+      ]
+    },
+    {
+      "file": "13-media.svg",
+      "title": "媒体与下载",
+      "rule_indices": [
+        33,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184
+      ]
+    },
+    {
+      "file": "14-domestic.svg",
+      "title": "国内域名直连",
+      "rule_indices": [
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122
+      ]
+    },
+    {
+      "file": "15-local-default.svg",
+      "title": "局域网与最终兜底",
+      "rule_indices": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        185
+      ]
+    }
+  ],
+  "coverage": "each rule appears exactly once across chapters"
+}

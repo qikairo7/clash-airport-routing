@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>多订阅分流 · 单向括号导图</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #172033; background: #f5f7fa; font: 16px/1.6 Arial, "Microsoft YaHei", sans-serif; }
+    header, main { max-width: 1420px; margin: auto; padding: 24px; }
+    h1 { margin: 0 0 8px; font-size: 26px; }
+    p { margin: 8px 0 16px; }
+    .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    select { max-width: 100%; padding: 10px; color: #172033; background: white; border: 1px solid #b8c3d1; border-radius: 6px; font: inherit; }
+    a { color: #1d4ed8; text-underline-offset: 3px; }
+    main { padding-top: 0; }
+    .diagram { padding: 16px; overflow-x: auto; border: 1px solid #d9e1eb; border-radius: 8px; background: white; }
+    img { display: block; width: 1280px; max-width: none; height: auto; }
+    :focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+    #status { color: #475569; }
+    @media (max-width: 600px) { header, main { padding: 16px; } h1 { font-size: 22px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>多订阅分流 · 单向括号导图</h1>
+    <p>从左向右看整体与局部。大括号表示结构包含；叶节点保留完整规则、生成序号和设计理由。</p>
+    <div class="controls">
+      <label for="chapter">选择章节</label>
+      <select id="chapter">
+        <option value="01-overview.svg">01 · 整体结构</option>
+        <option value="02-ai-core.svg">02 · AI 对话与开发入口</option>
+        <option value="03-ai-coding.svg">03 · AI 编程工具</option>
+        <option value="04-ai-search.svg">04 · AI 搜索与聚合</option>
+        <option value="05-ai-models.svg">05 · AI 模型与抓取 API</option>
+        <option value="06-ai-media.svg">06 · AI 图像与视频</option>
+        <option value="07-ai-manual.svg">07 · AI 手动服务</option>
+        <option value="08-development.svg">08 · 开发与 GitHub API</option>
+        <option value="09-social.svg">09 · 社交与 Telegram</option>
+        <option value="10-github-files.svg">10 · GitHub 文件</option>
+        <option value="11-packages-exact.svg">11 · 容器与依赖 · 精确主机</option>
+        <option value="12-packages-suffix.svg">12 · 容器与依赖 · 后缀</option>
+        <option value="13-media.svg">13 · 媒体与下载</option>
+        <option value="14-domestic.svg">14 · 国内域名直连</option>
+        <option value="15-local-default.svg">15 · 局域网与最终兜底</option>
+        <option value="16-node-policy.svg">16 · 节点选择与额度</option>
+        <option value="17-all-rules.svg">17 · 全部规则的完整图</option>
+      </select>
+      <a id="original" href="diagrams/01-overview.svg" target="_blank" rel="noopener">查看原图</a>
+      <a href="routing-mindmap.md">规则说明</a>
+    </div>
+    <p id="status" role="status">01 · 整体结构。按原始文字大小显示；窄窗口可横向滚动，长图按页面纵向阅读。</p>
+  </header>
+  <main>
+    <div class="diagram">
+      <img id="diagram" src="diagrams/01-overview.svg" alt="多订阅分流的整体结构单向括号导图">
+    </div>
+    <noscript><p>章节切换需要 JavaScript。全部章节可在 <a href="routing-mindmap.md">导图说明</a>中直接查看。</p></noscript>
+  </main>
+  <script>
+    const chapter = document.getElementById('chapter');
+    const diagram = document.getElementById('diagram');
+    const original = document.getElementById('original');
+    const status = document.getElementById('status');
+    chapter.addEventListener('change', () => {
+      const title = chapter.selectedOptions[0].textContent;
+      diagram.src = 'diagrams/' + chapter.value;
+      diagram.alt = title + '，完整单向括号导图';
+      original.href = diagram.src;
+      status.textContent = title + '。按原始文字大小显示；窄窗口可横向滚动，长图按页面纵向阅读。';
+    });
+    diagram.addEventListener('error', () => { status.textContent = '图表加载失败：请确认 diagrams/ 目录与本页一起保留。'; });
+  </script>
+</body>
+</html>
