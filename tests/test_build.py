@@ -49,6 +49,25 @@ class RoutingTests(unittest.TestCase):
         for host in ["auth0.com", "sentry.io", "stripe.com", "gstatic.com", "storage.googleapis.com", "unrelated.sandbox.googleapis.com", "amazonaws.com", "azure.com"]:
             self.assertFalse(route(self.config, host).startswith("AI"))
 
+    def test_refreshed_registry_and_ai_boundaries(self):
+        cases = {
+            "us-docker.pkg.dev": "容器与依赖", "asia.gcr.io": "容器与依赖",
+            "registry.gitlab.com": "容器与依赖", "gitlab.com": "开发",
+            "cdn.quay.io": "容器与依赖", "mcr.microsoft.com": "容器与依赖",
+            "jitpack.io": "容器与依赖", "dhi.io": "容器与依赖",
+            "download-cdn.jetbrains.com": "容器与依赖", "download.todesktop.com": "容器与依赖",
+            "docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com": "容器与依赖",
+            "unrelated.r2.cloudflarestorage.com": "通用海外",
+            "cdn-lfs.huggingface.co": "容器与依赖", "cas-bridge.xethub.hf.co": "容器与依赖",
+            "chatgpt.livekit.cloud": "AI ChatGPT Codex", "unrelated.livekit.cloud": "通用海外",
+            "daily-cloudcode-pa.googleapis.com": "AI Antigravity",
+            "unrelated.googleapis.com": "通用海外", "registry.example.cn": "通用海外",
+            "github.blog": "开发", "pages.gitlab.io": "开发",
+        }
+        for host, target in cases.items():
+            with self.subTest(host=host):
+                self.assertEqual(route(self.config, host), target)
+
     def test_all_ai_health_providers_are_independent(self):
         keys = []
         for service in SERVICES:

@@ -2,14 +2,14 @@
   "exact": {
     "GitHub API": ["api.github.com"],
     "GitHub 文件": ["raw.githubusercontent.com","codeload.github.com","objects.githubusercontent.com","release-assets.githubusercontent.com","github-releases.githubusercontent.com","avatars.githubusercontent.com"],
-    "容器与依赖": ["registry-1.docker.io","auth.docker.io","production.cloudflare.docker.com","ghcr.io","pkg-containers.githubusercontent.com","registry.npmjs.org","registry.yarnpkg.com","pypi.org","files.pythonhosted.org","update.code.visualstudio.com","download.jetbrains.com","downloads.cursor.com","download.todesktop.com"],
+    "容器与依赖": ["registry-1.docker.io","auth.docker.io","production.cloudflare.docker.com","docker-images-prod.6aa30f8b08e16409b46e0173d6de2f56.r2.cloudflarestorage.com","registry.gitlab.com","mcr.microsoft.com","ghcr.io","pkg-containers.githubusercontent.com","registry.npmjs.org","registry.yarnpkg.com","pypi.org","files.pythonhosted.org","update.code.visualstudio.com","download.jetbrains.com","download-cdn.jetbrains.com","downloads.cursor.com","download.todesktop.com"],
     "媒体与下载": ["video.twimg.com"]
   },
   "suffix": {
     "国内直连": ["bilibili.com","bilivideo.com","baidu.com","qq.com","taobao.com","jd.com","douyin.com","deepseek.com","kimi.com","moonshot.cn","bigmodel.cn","siliconflow.cn","modelscope.cn","npmmirror.com","feishu.cn","csdn.net","cnblogs.com","zhihu.com"],
     "GitHub 文件": ["githubusercontent.com"],
-    "容器与依赖": ["docker.io","docker.com","docker.cloud","npmjs.org","npmjs.com","yarnpkg.com","pythonhosted.org","pypi.org","nodejs.org","nuget.org","rust-lang.org","crates.io","go.dev","golang.org","anaconda.com","anaconda.org","repo.maven.apache.org","gradle.org","rubygems.org","packagist.org","huggingface.co","hf.co","ollama.com","pytorch.org"],
-    "开发": ["github.com","githubassets.com","github.io","gitlab.com","bitbucket.org","visualstudio.com","code.visualstudio.com","jetbrains.com","stackoverflow.com","readthedocs.io"],
+    "容器与依赖": ["docker.io","docker.com","docker.cloud","dhi.io","gcr.io","pkg.dev","quay.io","jitpack.io","npmjs.org","npmjs.com","yarnpkg.com","pythonhosted.org","pypi.org","nodejs.org","nuget.org","rust-lang.org","crates.io","go.dev","golang.org","anaconda.com","anaconda.org","repo.maven.apache.org","gradle.org","rubygems.org","packagist.org","huggingface.co","hf.co","ollama.com","pytorch.org","static.libnnc.org"],
+    "开发": ["github.com","githubassets.com","github.io","github.blog","gitlab.com","gitlab.io","bitbucket.org","visualstudio.com","code.visualstudio.com","jetbrains.com","stackoverflow.com","readthedocs.io","sourcegraph.com"],
     "社交": ["x.com","twitter.com","twimg.com","t.co"],
     "Telegram": ["telegram.org","telegram.me","t.me","tdesktop.com","telegra.ph"],
     "媒体与下载": ["youtube.com","youtu.be","googlevideo.com","ytimg.com","twitch.tv","ttvnw.net","dropbox.com","dropboxusercontent.com","onedrive.com"]

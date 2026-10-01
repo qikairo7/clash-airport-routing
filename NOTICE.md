@@ -10,6 +10,8 @@
 | [szkane/ClashRuleSet](https://github.com/szkane/ClashRuleSet) | 开发、AI、软件下载类别与规则格式审查 |
 | [Semporia/Clash](https://github.com/Semporia/Clash) | 规则来源、平台模板和服务清单审查 |
 | [GMOogway/shadowrocket-rules](https://github.com/GMOogway/shadowrocket-rules) | DIRECT / PROXY / REJECT 冲突审查与跨客户端格式差异 |
+| [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script) | 服务专属主机与下载分类线索；逐文件更新时间核验 |
+| [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) / [Loyalsoldier/clash-rules](https://github.com/Loyalsoldier/clash-rules) | 构建流程、生成分支和规则版本追溯 |
 | [Mihomo](https://github.com/MetaCubeX/mihomo) / [官方文档](https://wiki.metacubex.one/) | 运行内核、file provider、fallback 与语法验证 |
 | [Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev) | 案例客户端与持久配置环境 |
 | [Net.Coffee](https://ip.net.coffee/) | 当时的出口评分、网页连通、DNS / WebRTC 与远程 Ping 观测 |
