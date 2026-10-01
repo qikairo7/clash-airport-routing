@@ -5,8 +5,8 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-ALLOWED_ROOT = {"README.md", "LICENSE", "NOTICE.md", "SECURITY.md", "CONTRIBUTING.md", ".gitignore", ".gitattributes", "requirements.txt"}
-PREFIXES = ("docs/", "catalog/", "examples/", "tools/", "tests/", ".github/workflows/")
+ALLOWED_ROOT = {"README.md", "LICENSE", "NOTICE.md", "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md", ".gitignore", ".gitattributes", "requirements.txt", ".github/PULL_REQUEST_TEMPLATE.md"}
+PREFIXES = ("docs/", "catalog/", "examples/", "tools/", "tests/", ".github/workflows/", ".github/ISSUE_TEMPLATE/")
 PATTERNS = [
     re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}"),
     re.compile(r"github_pat_[A-Za-z0-9_]{30,}"),

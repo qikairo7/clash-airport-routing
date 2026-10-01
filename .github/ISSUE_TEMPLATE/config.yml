@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 使用文档
+    url: https://github.com/qikairo7/clash-airport-routing/blob/main/docs/README.md
+    about: 查看部署、测量、规则和额度保护的使用步骤。
+  - name: 私密漏洞报告
+    url: https://github.com/qikairo7/clash-airport-routing/security/advisories/new
+    about: 软件安全缺陷通过私密入口报告，材料也应脱敏。

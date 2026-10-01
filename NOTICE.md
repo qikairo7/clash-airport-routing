@@ -1,8 +1,18 @@
-# 来源、致谢与许可
+# 来源与许可声明
 
-项目由本机配置实践重新整理，公开的 Python 工具、示例结构、测试与说明采用 MIT 许可。上游仓库、客户端、网站及其规则的许可由各自作者决定；本项目的 MIT 不覆盖它们。
+## 本项目的许可
 
-没有打包三个上游的完整规则文件、原始下载、第三方脚本或图片。目录中的域名、公开端点与状态是本项目按用途整理的配置事实；参考上游获得分类线索，实际采用与排除的方法见 [规则说明](docs/rules.md)。若希望复制完整上游清单，请先核验其当前许可与原始来源。
+本项目原创的 Python 工具、配置生成逻辑、测试、说明文档及演示结构采用根目录的 [MIT 许可证](LICENSE)。版权署名为 `Copyright (c) 2026 qikairo7`。复制或再分发这些内容时，应保留许可证要求的版权及许可声明；完整条款以 `LICENSE` 为准。
+
+上游规则库、依赖、客户端和外部服务分别适用自己的许可或使用条款。项目 MIT 许可不替代它们，也不授予第三方服务的账号、订阅或品牌使用权限。
+
+## 采用内容的范围
+
+公开仓库提供自行整理的工具、目录和方法，没有打包上游的完整规则库、原始下载、第三方脚本或图片。`catalog/` 中的公开域名、端点与观测状态按用途归类，采用理由、规则边界与验证范围见[规则说明](docs/rules.md)及[本轮来源审查](docs/upstream-review-2026-10-01.md)。
+
+来源列入下表表示参考关系，不表示本项目可以按 MIT 再许可其全部内容。若引入第三方代码、文本或规则文件，需要核验对应版本的许可与原始来源，保留要求的声明，并记录采用范围。没有明确许可的内容需要另行确认授权。
+
+## 参考来源
 
 | 来源 | 用途 |
 |---|---|
@@ -20,3 +30,9 @@
 状态与语义参考：[Mihomo v1.19.31 HEAD 请求](https://github.com/MetaCubeX/mihomo/blob/v1.19.31/adapter/adapter.go)、[fallback 实现](https://github.com/MetaCubeX/mihomo/blob/v1.19.31/adapter/outboundgroup/fallback.go)。AI 网络域参考：[OpenAI 官方说明](https://help.openai.com/en/articles/9247338-network-recommendations-for-chatgpt-errors-on-web-and-apps)、[GitHub Copilot 官方清单](https://docs.github.com/en/copilot/reference/copilot-allowlist-reference)、[VS Code 网络说明](https://code.visualstudio.com/docs/setup/network)。
 
 本项目不售卖订阅，也没有提供订阅购买或推广链接。
+
+## 依赖与复用贡献
+
+Python 依赖列于 [requirements.txt](requirements.txt)，按依赖自身的许可安装；本项目没有将其源码打包到仓库。Mihomo、Clash Verge Rev 与 curl 同样由各自项目提供和授权。
+
+贡献者提交原创内容时按本项目 MIT 许可提供；第三方贡献需在 PR 中注明来源、版本、原许可证与需要保留的声明，流程见[贡献指南](CONTRIBUTING.md)。

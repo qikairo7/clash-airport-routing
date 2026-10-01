@@ -1,0 +1,65 @@
+name: 问题与文档反馈
+description: 报告生成失败、规则误匹配、测量异常或文档问题。
+title: "[问题] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请提供最小脱敏复现。不要粘贴订阅链接、服务器地址、出口 IP、令牌、控制器密钥或完整运行配置。
+        软件安全缺陷请使用 [私密漏洞报告](https://github.com/qikairo7/clash-airport-routing/security/advisories/new)。
+  - type: dropdown
+    id: area
+    attributes:
+      label: 问题范围
+      options:
+        - 配置生成
+        - 规则归属
+        - 测量工具
+        - 部署或文件来源
+        - 文档与使用说明
+    validations:
+      required: true
+  - type: input
+    id: revision
+    attributes:
+      label: 使用的提交或版本
+      description: 可填写 git rev-parse --short HEAD 的结果。
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 相关环境
+      description: 仅填写与问题相关的操作系统、Python、curl、Mihomo 或客户端版本；文档问题可写不适用。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤
+      description: 写明命令、涉及的文件和最小例子，优先使用仓库演示输入；避免上传真实节点配置。
+      placeholder: |
+        1. 使用 examples/settings.example.yaml
+        2. 运行的命令
+        3. 观察到的结果
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: 预期与实际结果
+      description: 规则问题可填写服务公开域名、预期策略和实际策略；公开域名不是你的机场服务器。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 已完成的检查
+      description: 可提供测试名称、HTTP 方法与状态或少量已脱敏错误信息；没有检查时说明即可。
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 提交前检查
+      options:
+        - label: 我已搜索现有问题，并检查内容不含真实订阅、账号凭据、节点地址或完整运行配置。
+          required: true

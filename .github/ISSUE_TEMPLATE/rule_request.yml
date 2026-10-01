@@ -1,0 +1,51 @@
+name: 分流规则补充
+description: 提出新服务、下载主机或现有域名归属调整，并提供公开依据。
+title: "[规则] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请描述服务用途与规则证据。此表单不收集机场订阅、节点服务器或账号令牌。
+        采用流程见 [贡献指南](https://github.com/qikairo7/clash-airport-routing/blob/main/CONTRIBUTING.md)。
+  - type: input
+    id: service
+    attributes:
+      label: 服务与用途
+      placeholder: 例如某服务的容器镜像下载。
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: 公开来源
+      description: 提供官方文档或源项目文件链接及查阅日期；仓库文件尽量固定到具体提交。
+    validations:
+      required: true
+  - type: textarea
+    id: routing
+    attributes:
+      label: 建议的规则范围与策略
+      description: 写明精确公开主机或后缀、预期策略，以及为什么适合 AI、开发、容量或国内直连。
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: 应匹配与不应匹配的例子
+      description: 同时检查下载子域、API、普通页面与共享云的其他租户，说明现有父域规则的影响。
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: 实测或检查范围
+      description: 有实测时记录时间、HEAD / GET 方法、状态与业务范围；尚未实测时明确填写。
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 提交前检查
+      options:
+        - label: 所提供的主机和链接属于公开服务，内容不含订阅、节点地址、出口 IP 或账号凭据。
+          required: true

@@ -1,106 +1,109 @@
 # Clash 多订阅分流实践
 
-把多个机场订阅按用途组合起来：AI 使用已验收的低倍率出口，日常访问优先容量订阅，下载避免自动消耗昂贵线路，每个订阅的全部节点保留手动入口。
+为一台电脑组合多份 Clash / Mihomo 订阅，按服务选择出口：AI 使用逐服务验收的低倍率候选，开发与社交优先容量订阅，文件与镜像下载使用容量线路。
 
-本项目来自一台 Windows 电脑的 Clash Verge Rev / Mihomo 配置实践。公开的是配置生成器、规则目录、测量工具和方法。真实订阅链接、服务器地址、密码、出口 IP、浏览记录及原始账单均不在仓库中。
+项目包含**本地配置生成器、分流目录、测量工具与可复验的实践文档**。适合已经有订阅、希望整理线路用途和流量成本的使用者。订阅在自己的电脑上导出、测量和处理。
 
-## 能直接使用的内容
+[使用文档](docs/README.md) · [分流规则](docs/rules.md) · [实测案例](docs/case-study.md) · [贡献指南](CONTRIBUTING.md) · [问题反馈](https://github.com/qikairo7/clash-airport-routing/issues/new/choose) · [MIT 许可证](LICENSE)
 
-- **本地 YAML 配置生成器**：合并主订阅、容量订阅和可选临时订阅；真实凭据只写入被 Git 忽略的 `output/`。
-- **30 个 AI 服务组**：23 个自动组、7 个手动组；每个自动服务与订阅组合使用独立文件来源和检查状态。
-- **8 个普通业务组**：开发、GitHub API、社交、Telegram、通用海外、GitHub 文件、容器与依赖、媒体与下载。
-- **全部节点目录**：未验收、高倍率和临时订阅节点仍可以手动使用。自动池按逐服务验收记录选择。
-- **额度保护配置**：`--block-primary` 生成移除主订阅的配置；自动账单采集与后台锁定程序尚未包含在公开版。
-- **真实测量工具**：三轮复用连接延迟、三轮单连接带宽，失败样本保留，输出不含 IP 或响应正文。
+## 项目能做什么
 
-这是一份可扩展的电脑分流模板。私人案例当前有 8017 条运行规则；公开模板按服务整理必要目录，节点倍率与资格通过本机测量记录配置。示例节点使用保留的 `.invalid` 域名，不能联网。
+| 能力 | 公开版实现 |
+|---|---|
+| 多订阅整合 | 读取两份主力订阅的本机 YAML，可增加一份临时订阅；按唯一别名整理节点 |
+| AI 专属分流 | 30 个服务组，其中 23 个自动、7 个手动；每个自动服务与订阅组合独立检查 |
+| 开发、社交与下载分流 | 8 个普通业务组；GitHub 页面、API、文件及容器依赖分别归类 |
+| 节点使用资格 | 根据本机填写的倍率、验收日期和服务资格选择自动候选；全部来源节点有手动目录 |
+| 主订阅额度保护 | `--block-primary` 生成移除主订阅的配置；部署和旧连接处理见[额度保护说明](docs/quota-and-failover.md) |
+| 网络测量 | 用 curl 核对连接复用，记录三轮请求延迟与单连接带宽；失败样本保留 |
 
-## 拓扑与服务分流
+**当前公开版的边界：**节点资格由使用者测量后填写，生成器不会自动判断“家宽”或出口信誉。公开版尚未包含全量节点扫描器、自动账单采集和后台额度保护程序；本机案例的这些能力与公开工具分别记录。
 
-```mermaid
-flowchart TD
-    PC[电脑上的 Mihomo 分流] --> CN[国内与局域网直连]
-    PC --> AI[按服务划分的 AI 自动组]
-    AI --> P[主订阅 已验收的低倍率候选]
-    AI -.主线路不可用.-> BAI[容量订阅 已验收的 AI 应急候选]
-    PC --> Normal[开发 社交 Telegram 普通海外]
-    Normal --> B[容量订阅优先]
-    Normal -.故障.-> PBackup[主订阅低倍率备用]
-    PC --> Download[文件 容器 媒体 下载]
-    Download --> BOnly[仅容量订阅自动池]
-    PC --> Manual[各订阅全部节点 手动目录]
-```
+## 快速开始：运行演示
 
-| 服务 | 自动出口顺序 | 设计原因 |
-|---|---|---|
-| ChatGPT / Codex、OpenAI API、Claude、Gemini、AI Studio、Antigravity | 主订阅逐服务合格节点 → 容量订阅逐服务合格节点 | 地区、信誉、稳定性与业务响应一起验收 |
-| Copilot、Cursor、Perplexity、Grok 等 | 各自的 AI 组；不共用一份所有服务的判活状态 | 一个网站可用不代表另一个网站可用 |
-| Cerebras、Groq、Poe、Midjourney、ElevenLabs、Phind、JetBrains AI | 手动组 | 本次没有取得充分的自动业务判活证据 |
-| GitHub 网页 / Git、API、开发文档 | 容量订阅 → 主订阅低倍率 | 网页、API 与文件分别处理 |
-| GitHub Raw / Releases、Docker / 软件包 / 模型、视频与云盘 | 容量订阅 | 容量订阅故障时停止自动下载，主订阅只允许手动选择 |
-| X 图片 / 网页、Telegram | 容量订阅 → 主订阅低倍率 | 不要求与 AI 相同的出口信誉；X 视频另走下载 |
-| 国内常用站点、局域网 | DIRECT | 具体站点清单可扩展；模板没有全量国内 GeoIP 清单 |
-
-服务检查地址、HEAD / GET 状态及域名见 [services.json](catalog/services.json)。普通域名见 [routes.json](catalog/routes.json)。共享 CDN、认证、支付与云平台父域没有整体归入 AI。
-
-## 快速开始
-
-需要 Python 3.11+、PyYAML；测量还需要 curl 7.70+。配置格式在 Mihomo **v1.19.31** 上验证，其他内核先执行语法检查。
-
-### 1. 验证公开示例
+需要 **Python 3.11+**。以下命令使用 Windows PowerShell；项目唯一 Python 依赖由 `requirements.txt` 安装。
 
 ```powershell
 git clone https://github.com/qikairo7/clash-airport-routing.git
 cd clash-airport-routing
-python -m pip install -r requirements.txt
-python -m unittest discover -s tests -v
-python tools/build.py --settings examples/settings.example.yaml --demo
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe tools/build.py --settings examples/settings.example.yaml --demo
 ```
 
-输出在 `output/config.yaml` 和 `output/providers/`。`--demo` 仅用于阅读、测试和语法检查，节点无法连接真实服务。
+生成结果为 `output/config.yaml` 和 `output/providers/`。**演示节点使用 `.invalid` 域名和演示凭据，不能连接真实网络。** 这一步用于了解文件结构和验证生成流程。
 
-### 2. 配置自己的订阅
-
-在 `local/` 保存订阅**本机导出的 YAML**，并创建 `local/settings.yaml`。可以参考 [示例设置](examples/settings.example.yaml)：
-
-1. 将 `demo` 改为 `false`。
-2. `sources.primary` / `sources.bulk` 指向本机文件，可选 `temporary`。路径相对于设置文件。
-3. 每个准备参加自动池的节点填写唯一 `alias`、来源、原节点名称、真实计费倍率、验收日期。
-4. `roles` 写入已验收的 `interactive` 或 `bulk`；`services` 逐项填写 [服务 ID](catalog/services.json)。正式配置禁止 `*`。
-5. 测试尚未完成时将 `qualified` 保持为 `false`。生成器不会根据节点名称中的“家宽”或“原生”自动提升资格。
-6. 如需保留 DNS、TUN、hosts 等字段，通过 `base` 引用本机基础 YAML。原节点、策略组、节点来源、规则来源和规则会重新生成。
+运行离线检查：
 
 ```powershell
-python tools/build.py --settings local/settings.yaml
-# 将 mihomo 替换为本机内核程序路径；工作目录决定文件来源的相对路径。
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+.\.venv\Scripts\python.exe tools/check_public.py
+```
+
+Linux / macOS 可使用 `python3 -m venv .venv` 创建环境，并将后续 Python 命令替换为 `.venv/bin/python`。配置格式已在 Mihomo **v1.19.31** 上核验。
+
+## 接入自己的订阅
+
+按[部署指南](docs/deployment.md)完成本机文件准备、生成、内核加载和实际请求验收：
+
+1. 把订阅的本机导出 YAML 放进 `local/`，创建 `local/settings.yaml`，参考[设置示例](examples/settings.example.yaml)。
+2. 将 `demo` 设为 `false`，设置 `sources.primary` 和 `sources.bulk`；`temporary` 可选。文件路径相对于设置文件。
+3. 为准备进入自动池的节点填写唯一别名、真实倍率、验收日期及已通过的[服务 ID](catalog/services.json)。正式配置禁止使用 `*` 代替逐服务资格。
+4. 生成配置，再用 Mihomo 执行语法检查。整个 `providers/` 目录必须与配置一起部署。
+5. 在客户端核对实际运行的组、来源和规则，再复测业务请求。
+
+```powershell
+.\.venv\Scripts\python.exe tools/build.py --settings local/settings.yaml
+# 将 mihomo 替换为自己的内核程序路径；-d 指定文件来源的工作目录。
 mihomo -t -d output -f output/config.yaml
 ```
 
-随后按 [部署与更新](docs/deployment.md) 把整个输出目录导入客户端。生成不会修改正在运行的 Clash 配置。不要把自己的订阅上传到第三方转换服务或本仓库的 Issue。
+`primary` 是优先服务于 AI 的订阅，`bulk` 是承载日常与下载流量的订阅，不绑定任何机场品牌。可选的 `base` 保留 DNS、TUN、hosts 等网络字段；节点、策略组、来源和规则会重新生成。生成器写入 `output/`，客户端加载步骤由[部署指南](docs/deployment.md)说明。
 
-### 3. 复测与额度保护
+## 默认如何分流
+
+| 用途 | 自动出口顺序 |
+|---|---|
+| ChatGPT / Codex、Claude、Gemini、Antigravity 等自动 AI 服务 | 主订阅逐服务合格候选 → 容量订阅逐服务合格候选 |
+| 开发文档、GitHub 页面 / Git、GitHub API、X、Telegram | 容量订阅 → 主订阅低倍率备用 |
+| GitHub Raw / Releases、容器镜像、软件包、模型文件、媒体 | 容量订阅自动候选 |
+| 国内常用站点、局域网 | DIRECT，具体覆盖范围见[规则说明](docs/rules.md) |
+| 高倍率、未验收或临时节点 | 各订阅的完整手动目录 |
+
+规则按顺序首匹配：精确下载主机优先于 AI 父域，AI 专用 API 优先于普通平台父域。例如 Cursor 更新包和 Cursor API 分组处理，GitHub Copilot 与 GitHub 文件分组处理。共享云、认证、支付与 CDN 的父域需按具体服务核对。
+
+自动故障切换作用于新连接，已经建立的下载或生成连接无法迁移；检查成功与账号业务可用性分别验收。详细参数见[服务目录](catalog/services.json)、[普通路由目录](catalog/routes.json)和[故障切换说明](docs/quota-and-failover.md)。
+
+## 测量与复验
+
+测量需要 **curl 7.70+** 和运行中的本机代理。默认代理地址为 `http://127.0.0.1:7897`，可通过 `--proxy` 修改。
 
 ```powershell
-# 当前分流下三轮测量；默认本机代理端口 7897，可用 --proxy 修改。
-python tools/measure.py --rounds 3
-# 晚高峰另做一轮，不与白天结果混为同一组。
-python tools/measure.py --rounds 1 --period evening
-# 接近额度阈值时生成锁定版本，之后仍需部署及关闭旧连接。
-python tools/build.py --settings local/settings.yaml --block-primary
+# 三轮测量，核对连接复用并计算中位数。
+.\.venv\Scripts\python.exe tools/measure.py --rounds 3
+# 晚高峰单独记录一轮。
+.\.venv\Scripts\python.exe tools/measure.py --rounds 1 --period evening
 ```
 
-三轮带宽测试下载约 **30 MB 实际流量**，机场按线路倍率计费。结果保存在被忽略的 `reports/`。测量对象是当前规则选择的出口；这个工具不会逐个测试所有节点。
+三轮带宽测量约下载 **30 MB 实际流量**，计费按节点倍率计算。结果写入 `reports/`。工具测量的是当前规则选择的出口；全量节点与 AI 账号验收流程见[测量指南](docs/measurement.md)。
 
-## 文档与实际结果
+公开 CI 验证生成器、规则边界和样本校验。历史节点测量、匿名接口响应与已登录生成结果分别记录在[案例文档](docs/case-study.md)；每份结果都有其时段和范围。后续规则补充见[2026-10-01 验收记录](docs/upstream-review-2026-10-01.md)。
 
-- [节点验收与逐段诊断](docs/measurement.md)：全量目录、入口独立性、出口评分、复用连接、单连接、业务测试。
-- [详细规则与来源审查](docs/rules.md)：首匹配顺序、共享域边界、三个上游仓库的采用方法。
-- [2026-10-01 上游补充与运行验收](docs/upstream-review-2026-10-01.md)：三个指定项目复核、新来源、六项本机调整与公开目录补全。
-- [额度保护与故障切换](docs/quota-and-failover.md)：倍率、计费基线、锁定流程及现有连接限制。
-- [部署与更新](docs/deployment.md)：Mihomo 工作目录、Clash Verge Rev 导入与订阅变化处理。
-- [三档配置方式](docs/plans.md)：省心、均衡、折腾，含拓扑、分流表、人民币 / 美元成本和安全检查。
-- [匿名案例复测记录](docs/case-study.md)：549 组独立参数扫描、46/48 网站连通、单连接 25.65 Mbps 等真实观测及未通过项目。
-- [Antigravity API 地区错误实修](docs/antigravity-troubleshooting.md)：备用 API 规则遗漏、运行来源缺文件，以及实际 Gemini 生成恢复。
-- [来源与许可](NOTICE.md)、[贡献约定](CONTRIBUTING.md)、[隐私与安全](SECURITY.md)。
+## 仓库导航
 
-公开版测试验证配置生成、规则边界、候选筛选和测量样本校验。CI 不拥有任何机场订阅，因此通过 CI 不表示机场或已登录 AI 账号可用。匿名网关响应、第三方信誉评分和真实模型生成也分别记录。
+| 位置 | 内容 |
+|---|---|
+| [`catalog/`](catalog/) | AI 服务与普通业务的分流目录 |
+| [`tools/`](tools/) | 配置生成、测量和公开文件检查工具 |
+| [`examples/`](examples/) | 使用保留域名的演示订阅与设置 |
+| [`tests/`](tests/) | 配置行为、规则边界和测量回归测试 |
+| [`docs/`](docs/README.md) | 部署、测量、额度、规则、方案及历史案例 |
+| `local/`、`output/`、`reports/` | 本机输入与产物，被 Git 忽略 |
+
+## 贡献、反馈与许可
+
+- 规则补充、缺陷修复和文档改进按[贡献指南](CONTRIBUTING.md)提交；新规则需要来源、正反例及适用的验收结果。
+- 普通问题使用[反馈表单](https://github.com/qikairo7/clash-airport-routing/issues/new/choose)；软件安全缺陷使用[私密漏洞报告](https://github.com/qikairo7/clash-airport-routing/security/advisories/new)，处理范围见[安全说明](SECURITY.md)。
+- 公开贡献使用最小脱敏示例。真实订阅、账号令牌、节点服务器和运行配置留在本机。
+- 本项目原创代码、文档与示例采用 [MIT](LICENSE)，版权署名为 `Copyright (c) 2026 qikairo7`。第三方规则、客户端和服务的来源与许可见 [NOTICE](NOTICE.md)。
+- 功能和文档变化记录在[更新记录](CHANGELOG.md)。
