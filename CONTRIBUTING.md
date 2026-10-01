@@ -89,6 +89,7 @@ git diff --cached
 2. 使用具体的提交说明，例如 `Fix registry download routing` 或 `Clarify provider deployment paths`。
 3. 在 PR 模板中填写改动原因、规则来源、验证方法和结果；不适用的检查说明原因。
 4. 涉及功能、规则或使用方式变化时，更新对应文档和 `CHANGELOG.md`。
+   新增或调整服务组时，同步更新 `docs/routing-mindmap.md` 的分类、设计理由及规则例子；改变部署方式时同步检查首页提示词与 `docs/agent-deployment.md`。
 5. 根据 CI 结果与审查意见完成修正，再由维护者处理合并。
 
 公开 CI 执行离线测试、演示生成和公开文件检查，不持有订阅与 AI 账号。业务成功的结论需另外提供范围明确、已经脱敏的证据。

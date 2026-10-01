@@ -1,11 +1,13 @@
 # 使用文档
 
-从[项目首页](../README.md)运行演示后，按下表选择要完成的步骤。公开配置生成器与本机历史案例分别说明。
+从[项目首页](../README.md)复制提示词交给具备本机执行能力的 Agent，按[Agent 部署指南](agent-deployment.md)完成部署。分类与设计理由见[完整思维导图](routing-mindmap.md)。也可以按下表自行阅读与操作。
 
 ## 配置与使用
 
 | 想完成的事情 | 阅读内容 |
 |---|---|
+| 让 Agent 读取订阅、测量、部署并验收 | [Agent 本机部署指南](agent-deployment.md) |
+| 理解每个服务组与节点候选的设计原因 | [分类思维导图与节点选择理由](routing-mindmap.md) |
 | 准备两份主力订阅，导出并加载配置 | [部署与更新](deployment.md) |
 | 理解 AI、开发、下载的规则顺序 | [详细规则与来源审查](rules.md) |
 | 测量节点，填写自动候选资格 | [节点验收与逐段诊断](measurement.md) |
@@ -14,7 +16,7 @@
 
 ### 建议使用顺序
 
-1. 运行[首页演示](../README.md)中的快速开始步骤，认识 `config.yaml` 与 `providers/` 的关系。
+1. 交给 Agent 时从[部署指南](agent-deployment.md)开始；自行操作时运行[首页演示](../README.md)，认识 `config.yaml` 与 `providers/` 的关系。
 2. 按[测量指南](measurement.md)确认节点倍率、独立入口和逐服务资格。
 3. 按[部署指南](deployment.md)填写本机设置，生成、检查并加载配置。
 4. 检查实际规则归属与业务请求，记录上午和晚高峰结果。
