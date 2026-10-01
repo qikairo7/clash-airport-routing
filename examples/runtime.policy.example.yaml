@@ -1,0 +1,24 @@
+# 字段示例，合并到 local/settings.yaml，不能单独作为完整设置使用。
+# 路径、账单数值和时间都必须替换为本机当前核验结果。
+runtime:
+  core: 'C:/mihomo/mihomo.exe'
+  home: './mihomo'
+  config: './mihomo/config.yaml'
+  persistent_config: './mihomo/config.yaml'
+  controller_url: 'http://127.0.0.1:9090'
+  secret_env: MIHOMO_SECRET
+  # Windows 管道与 controller_url 二选一，名称由实际运行内核确定。
+  # controller_pipe: '\\.\pipe\mihomo-example'
+budgets:
+  primary:
+    used: 10
+    total: 250
+    threshold: 220
+    unit: GiB
+    observed_at: '2026-10-01T08:00:00+08:00'
+  bulk:
+    used: 20
+    total: 500
+    threshold: 450
+    unit: GiB
+    observed_at: '2026-10-01T08:00:00+08:00'

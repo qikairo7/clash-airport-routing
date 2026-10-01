@@ -1,11 +1,14 @@
 import argparse
 import copy
 import json
+import math
 import re
 from datetime import date
 from pathlib import Path
 
 import yaml
+
+from policy import select_candidates
 
 ROOT = Path(__file__).resolve().parents[1]
 SERVICES = json.loads((ROOT / "catalog/services.json").read_text(encoding="utf-8"))
@@ -70,7 +73,7 @@ def generate(settings, sources, base=None, demo=False, block_primary=False):
         if key not in pools or name not in pools[key] or (key, name) in references:
             raise ValueError("节点映射缺失或重复引用同一个来源节点")
         multiplier = node.get("multiplier")
-        if isinstance(multiplier, bool) or not isinstance(multiplier, (int, float)) or multiplier <= 0:
+        if isinstance(multiplier, bool) or not isinstance(multiplier, (int, float)) or not math.isfinite(multiplier) or multiplier <= 0:
             raise ValueError("每个映射节点必须填写正数 multiplier")
         roles, services = node.get("roles", []), node.get("services", [])
         if not isinstance(roles, list) or not set(roles) <= {"interactive", "bulk"}:
@@ -88,16 +91,29 @@ def generate(settings, sources, base=None, demo=False, block_primary=False):
         references.add((key, name))
         pools[key][name]["name"] = alias
 
+    blocked_sources = set(settings.get("policy", {}).get("blocked_sources", []))
+    if block_primary:
+        blocked_sources.add("primary")
+    if not blocked_sources <= set(sources):
+        raise ValueError("blocked_sources 引用了不存在的订阅")
     # 未参加自动池的节点保留完整手动目录，使用独立名称空间防止跨订阅重名。
     all_nodes = []
     for key, pool in pools.items():
         for original, proxy in pool.items():
             if (key, original) not in references:
                 proxy["name"] = f"{key}::{original}"
-            if not (block_primary and key == "primary"):
+            if key not in blocked_sources:
                 all_nodes.append(proxy)
 
     config = copy.deepcopy(base or {})
+    source_hosts = {}
+    for source in sources.values():
+        for hostname, address in source.get("hosts", {}).items():
+            if hostname in source_hosts and source_hosts[hostname] != address:
+                raise ValueError("不同订阅包含冲突的 hosts 映射，请先在本机核对")
+            source_hosts[hostname] = address
+    if source_hosts:
+        config["hosts"] = {**source_hosts, **config.get("hosts", {})}
     for key in ["proxies", "proxy-groups", "proxy-providers", "rule-providers", "rules"]:
         config.pop(key, None)
     config.update({"mixed-port": config.get("mixed-port", 7897), "allow-lan": False,
@@ -106,7 +122,7 @@ def generate(settings, sources, base=None, demo=False, block_primary=False):
     payloads = {}
 
     def candidates(key, role=None, service=None):
-        if block_primary and key == "primary":
+        if key in blocked_sources:
             return []
         return [pools[key][node["name"]] for node in nodes
                 if node["source"] == key and node.get("qualified") is True and node["multiplier"] <= 1
@@ -115,6 +131,27 @@ def generate(settings, sources, base=None, demo=False, block_primary=False):
 
     def make_group(identifier, name, keys, url=None, status=None, interval=180, role=None, service=None, automatic=True):
         providers, manual = [], []
+        # 没有 policy 的旧设置保持原行为；启用后按实测地区跨来源排序。
+        if settings.get("policy") and automatic:
+            metadata = [node for node in nodes if node["source"] in keys and node.get("qualified") is True
+                        and node["multiplier"] <= 1 and node["source"] not in blocked_sources
+                        and (role is None or role in node.get("roles", []))
+                        and (service is None or service in node.get("services", []) or (demo and "*" in node.get("services", [])))]
+            ordered, _ = select_candidates(metadata, service or identifier, keys, settings["policy"])
+            for index, node in enumerate(ordered):
+                provider = f"{identifier}-{node['source']}-{index}"
+                providers.append(provider)
+                payloads[f"providers/{provider}.yaml"] = {"proxies": [pools[node["source"]][node["name"]]]}
+                config["proxy-providers"][provider] = {
+                    "type": "file", "path": f"providers/{provider}.yaml",
+                    "health-check": {"enable": True, "url": url, "interval": interval,
+                                     "timeout": 5000, "lazy": interval != 60, "expected-status": status},
+                }
+            config["proxy-groups"].append({"name": name, "type": "fallback", "use": providers,
+                "url": url, "interval": interval, "timeout": 5000,
+                "lazy": interval != 60, "expected-status": status} if providers else
+                {"name": name, "type": "select", "proxies": ["REJECT"]})
+            return
         for key in keys:
             selected = candidates(key, role, service)
             if not selected:
@@ -148,7 +185,7 @@ def generate(settings, sources, base=None, demo=False, block_primary=False):
     for index, (name, (url, status)) in enumerate(CAPACITY.items()):
         make_group(f"capacity-{index}", name, ["bulk"], url, status, role="bulk")
     for key, pool in pools.items():
-        manual = [proxy["name"] for proxy in pool.values()] if not (key == "primary" and block_primary) else []
+        manual = [proxy["name"] for proxy in pool.values()] if key not in blocked_sources else []
         config["proxy-groups"].append({"name": f"全部节点 {key}", "type": "select", "proxies": manual or ["REJECT"]})
 
     rules = config["rules"]
@@ -176,9 +213,9 @@ def build(settings_path, output, demo=False, block_primary=False):
     base = read_yaml(path.parent / settings["base"]) if settings.get("base") else None
     config, payloads = generate(settings, sources, base, demo, block_primary)
     output = Path(output).resolve()
-    # 仅写入固定的被忽略目录，避免把包含凭据的结果输出到可提交目录。
-    if output != ROOT / "output":
-        raise ValueError("输出目录必须为本项目 output/，该目录已加入 .gitignore")
+    # 仅写入被忽略目录；后台任务使用自己的 local/ 子目录，避免覆盖演示产物。
+    if output != (ROOT / "output").resolve() and (ROOT / "local").resolve() not in output.parents:
+        raise ValueError("输出目录必须为本项目 output/ 或被忽略的 local/ 内的独立目录")
     output.mkdir(parents=True, exist_ok=True)
     for relative, data in {**payloads, "config.yaml": config}.items():
         target = output / relative

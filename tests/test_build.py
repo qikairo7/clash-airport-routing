@@ -130,8 +130,20 @@ class RoutingTests(unittest.TestCase):
         self.assertEqual(config["tun"], base["tun"])
         self.assertFalse(config["allow-lan"])
 
+    def test_subscription_hosts_preserved_and_conflicts_rejected(self):
+        sources = copy.deepcopy(self.sources)
+        sources["primary"]["hosts"] = {"alias.invalid": "canonical.invalid"}
+        config, _ = generate(self.settings, sources, demo=True)
+        self.assertEqual(config["hosts"]["alias.invalid"], "canonical.invalid")
+        config, _ = generate(self.settings, sources, {"hosts": {"alias.invalid": "override.invalid"}}, demo=True)
+        self.assertEqual(config["hosts"]["alias.invalid"], "override.invalid")
+        sources["bulk"]["hosts"] = {"alias.invalid": "conflict.invalid"}
+        with self.assertRaises(ValueError):
+            generate(self.settings, sources, demo=True)
+
     def test_bad_metadata_rejected(self):
-        for field, value in [("multiplier", 0), ("alias", "DIRECT"), ("qualified_on", "bad-date"), ("services", ["unknown"])]:
+        for field, value in [("multiplier", 0), ("multiplier", float("nan")), ("multiplier", float("inf")),
+                             ("alias", "DIRECT"), ("qualified_on", "bad-date"), ("services", ["unknown"])]:
             settings = copy.deepcopy(self.settings)
             settings["nodes"][0][field] = value
             with self.subTest(field=field), self.assertRaises(ValueError):

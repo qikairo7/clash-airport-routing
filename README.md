@@ -37,6 +37,9 @@
 根据证据填写 local/settings.yaml，正式配置禁止 services: ['*']。
 运行离线测试、生成器和 Mihomo -t，部署 config.yaml 及全部被引用的 providers/。
 Clash Verge Rev 要修改持久配置并核对实际内核工作目录，不能仅覆盖生成文件。
+需要后台保护时再读取 docs/policy-monitoring.md，按实测出口、证据时效和账单基线启用 policy。
+保持规则模式，核对国内 AI 的 DIRECT 匹配；后台普通候选调整等现有连接结束后部署，
+不要在正在生成或下载时反复完整重载。额度锁定仍立即执行并关闭受保护来源的旧连接。
 核对运行态组、provider 数量、规则顺序与实际业务的匹配链，验证故障备用和恢复。
 
 交付从左向右的本机单向括号导图，逐条展示实际规则、服务与候选节点的包含关系，
@@ -75,14 +78,15 @@ Agent 的逐步执行、文件契约与完成条件见[部署指南](docs/agent-
 | AI 专属分流 | 30 个服务组，其中 23 个自动、7 个手动；每个自动服务与订阅组合独立检查 |
 | 开发、社交与下载分流 | 8 个普通业务组；GitHub 页面、API、文件及容器依赖分别归类 |
 | 节点使用资格 | 根据本机填写的倍率、验收日期和服务资格选择自动候选；全部来源节点有手动目录 |
-| 主订阅额度保护 | `--block-primary` 生成移除主订阅的配置；部署和旧连接处理见[额度保护说明](docs/quota-and-failover.md) |
+| 实测出口排序 | 可选 `policy` 按同出口、同国家、来源与优先级排序，过滤过期证据并合并已确认的重复线路 |
+| 后台额度与节点保护 | `tools/watch.py` 持续核算已配置来源的保守用量，隔离连续失败候选；额度锁定移除来源并关闭旧连接 |
 | 网络测量 | 用 curl 核对连接复用，记录三轮请求延迟与单连接带宽；失败样本保留 |
 
-**当前公开版的边界：**节点资格由使用者测量后填写，生成器不会自动判断“家宽”或出口信誉。公开版尚未包含全量节点扫描器、自动账单采集和后台额度保护程序；本机案例的这些能力与公开工具分别记录。
+**当前公开版的边界：**节点资格由使用者测量后填写，生成器不会自动判断“家宽”或出口信誉；没有全量节点扫描器和自动账单采集。后台程序需要当前账单基线、全部节点倍率和已接入的独立 Mihomo 配置，接入契约见[后台保护指南](docs/policy-monitoring.md)。Clash Verge Rev 的持久增强脚本需要客户端适配。
 
 ## 快速开始：运行演示
 
-需要 **Python 3.11+**。以下命令使用 Windows PowerShell；项目唯一 Python 依赖由 `requirements.txt` 安装。
+需要 **Python 3.11+**。以下命令使用 Windows PowerShell；项目 Python 依赖由 `requirements.txt` 安装。
 
 ```powershell
 git clone https://github.com/qikairo7/clash-airport-routing.git
@@ -119,7 +123,9 @@ Linux / macOS 可使用 `python3 -m venv .venv` 创建环境，并将后续 Pyth
 mihomo -t -d output -f output/config.yaml
 ```
 
-`primary` 是优先服务于 AI 的订阅，`bulk` 是承载日常与下载流量的订阅，不绑定任何机场品牌。可选的 `base` 保留 DNS、TUN、hosts 等网络字段；节点、策略组、来源和规则会重新生成。生成器写入 `output/`，客户端加载步骤由[部署指南](docs/deployment.md)说明。
+`primary` 是优先服务于 AI 的订阅，`bulk` 是承载日常与下载流量的订阅，不绑定任何机场品牌。可选的 `base` 保留 DNS、TUN、hosts 等网络字段；来源中的 hosts 会合并，来源之间冲突时报错，`base.hosts` 可明确覆盖。节点、策略组、来源和规则会重新生成。生成器默认写入 `output/`，客户端加载步骤由[部署指南](docs/deployment.md)说明。
+
+已有设置不含 `policy` 时保持原有候选顺序。启用实测排序和后台保护时，参考[策略示例](examples/settings.policy.example.yaml)与[后台保护指南](docs/policy-monitoring.md)；示例日期不会自动更新，不能代替实际验收。
 
 ## 默认如何分流
 

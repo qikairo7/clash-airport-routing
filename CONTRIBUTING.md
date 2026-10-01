@@ -35,6 +35,9 @@ Linux / macOS 使用 `python3 -m venv .venv` 和 `.venv/bin/python`。演示输�
 | `catalog/routes.json` | 国内、开发、下载、社交等普通业务域名 |
 | `catalog/diagram-notes.json` | 服务组与精确例外的设计理由 |
 | `tools/build.py` | 本机输入校验、候选选择、组与规则生成 |
+| `tools/policy.py` | 证据时效、出口排序、重复线路、故障隔离与保守额度核算 |
+| `tools/controller.py`、`tools/watch.py` | 本机控制接口、台账与备份、候选校验和部署时机 |
+| `tools/verge_policy.js` | Clash Verge Rev 持久增强脚本的策略转换函数 |
 | `tools/measure.py` | curl 连接复用和单连接测量、失败样本判定 |
 | `tools/check_public.py` | 公开文件范围与基础敏感内容检查 |
 | `tools/render_rule_diagrams.py` | 从实际生成规则导出单向括号图及覆盖清单 |
@@ -96,6 +99,8 @@ git diff --cached
 5. 根据 CI 结果与审查意见完成修正，再由维护者处理合并。
 
 公开 CI 执行离线测试、演示生成和公开文件检查，不持有订阅与 AI 账号。业务成功的结论需另外提供范围明确、已经脱敏的证据。
+
+后台行为调整需验证真实内核的初始化、控制接口、无效候选文件保护、测试额度锁定和备用请求。使用隔离端口与测试账单，不修改正式账单基线；测试产物留在 `local/`，公开说明要区分接口连通与实际模型生成。
 
 ## 隐私与许可
 
