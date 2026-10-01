@@ -5,6 +5,7 @@ sources:
   bulk: bulk.example.yaml
   temporary: temporary.example.yaml
 policy:
+  stable_ai: true
   qualification_max_age_hours: 72
   # false 允许只有连通证据的候选，但它们不能被标为账号业务已通过。
   # 核心 AI 完成真实业务验收后，可改为 true，未验收候选将退出自动池。

@@ -27,6 +27,22 @@ class RoutingTests(unittest.TestCase):
         self.sources = {key: read_yaml(ROOT / "examples" / value) for key, value in self.settings["sources"].items()}
         self.config, self.payloads = generate(self.settings, self.sources, demo=True)
 
+    def test_stable_policy_exposes_manual_choice_and_limits_ai_candidates(self):
+        settings = read_yaml(ROOT / "examples/settings.policy.example.yaml")
+        config, payloads = generate(settings, self.sources, demo=True)
+        groups = {group["name"]: group for group in config["proxy-groups"]}
+        for service in SERVICES:
+            if not service["auto"]:
+                continue
+            outer = groups[service["name"]]
+            inner = groups[service["name"] + " 候选"]
+            self.assertEqual(outer["type"], "select")
+            self.assertIn("全部节点 primary", outer["proxies"])
+            self.assertIn("REJECT", outer["proxies"])
+            self.assertLessEqual(len(inner.get("use", [])), 4)
+            if inner.get("use"):
+                self.assertEqual(inner["interval"], 60)
+
     def test_service_and_download_boundaries(self):
         cases = {
             "chatgpt.com": "AI ChatGPT Codex", "api.openai.com": "AI OpenAI API",

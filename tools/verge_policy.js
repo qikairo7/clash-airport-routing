@@ -22,8 +22,9 @@ function applyRoutingPolicy(config) {
       const name = "路由策略 " + entry.name + " " + index;
       const pattern = layer.names.map(escaped).join("`");
       providers[name] = {...base, filter: pattern, "health-check": {enable: true, url: group.url,
-        "expected-status": group["expected-status"], interval: group.interval || 180,
+        "expected-status": group["expected-status"], interval: entry.stable ? 60 : (group.interval || 180),
         timeout: group.timeout || 5000, lazy: false}};
+      if (layer.path) providers[name].path = layer.path;
       sources.push(name);
       names.push(...layer.names);
     });
@@ -37,8 +38,21 @@ function applyRoutingPolicy(config) {
       group.proxies = ["REJECT"];
       group.type = "select";
     }
+    if (entry.stable) {
+      const automatic = entry.name + " 候选";
+      if (groups.some((item) => item.name === automatic)) throw new Error("稳定候选组名称重复");
+      group.name = automatic;
+      group.interval = 60;
+      group.timeout = 5000;
+      group.lazy = false;
+      groups.push({name: entry.name, type: "select", proxies: [automatic, ...(entry.manual_groups || []), "REJECT"]});
+    }
   }
   const blocked = new Set(policy.blocked_nodes || []);
+  const referenced = new Set(groups.flatMap((group) => group.use || []));
+  for (const [name, provider] of Object.entries(providers)) {
+    if (!referenced.has(name) && provider["health-check"]) provider["health-check"].enable = false;
+  }
   const blockedProviders = new Set(policy.blocked_providers || []);
   for (const name of blockedProviders) delete providers[name];
   for (const provider of Object.values(providers)) {

@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from policy import select_candidates
+from policy import limited_candidates, select_candidates
 
 ROOT = Path(__file__).resolve().parents[1]
 SERVICES = json.loads((ROOT / "catalog/services.json").read_text(encoding="utf-8"))
@@ -138,6 +138,12 @@ def generate(settings, sources, base=None, demo=False, block_primary=False):
                         and (role is None or role in node.get("roles", []))
                         and (service is None or service in node.get("services", []) or (demo and "*" in node.get("services", [])))]
             ordered, _ = select_candidates(metadata, service or identifier, keys, settings["policy"])
+            stable = bool(service and settings["policy"].get("stable_ai", False))
+            if stable:
+                preference = settings["policy"].get("services", {}).get(service, {})
+                ordered = limited_candidates(ordered, preference.get("preferred_country", ordered[0].get("exit_country", "") if ordered else ""),
+                                             preference.get("preferred_exit_id"), 4)
+                interval = 60
             for index, node in enumerate(ordered):
                 provider = f"{identifier}-{node['source']}-{index}"
                 providers.append(provider)
@@ -147,10 +153,14 @@ def generate(settings, sources, base=None, demo=False, block_primary=False):
                     "health-check": {"enable": True, "url": url, "interval": interval,
                                      "timeout": 5000, "lazy": interval != 60, "expected-status": status},
                 }
-            config["proxy-groups"].append({"name": name, "type": "fallback", "use": providers,
+            automatic_name = name + " 候选" if stable else name
+            config["proxy-groups"].append({"name": automatic_name, "type": "fallback", "use": providers,
                 "url": url, "interval": interval, "timeout": 5000,
                 "lazy": interval != 60, "expected-status": status} if providers else
-                {"name": name, "type": "select", "proxies": ["REJECT"]})
+                {"name": automatic_name, "type": "select", "proxies": ["REJECT"]})
+            if stable:
+                config["proxy-groups"].append({"name": name, "type": "select", "proxies": [automatic_name,
+                    *[f"全部节点 {key}" for key in keys], "REJECT"]})
             return
         for key in keys:
             selected = candidates(key, role, service)

@@ -46,7 +46,10 @@ class Controller:
             raise RuntimeError("本机 Mihomo 管理管道不可用")
         # 标准库负责解析 HTTP 响应；控制器凭据不会写入文件或日志。
         headers = [f"{method} {path} HTTP/1.1", "Host: localhost", "Connection: close",
-                   "Content-Type: application/json", f"Content-Length: {len(payload)}", "", ""]
+                   "Content-Type: application/json", f"Content-Length: {len(payload)}"]
+        if self.secret:
+            headers.append("Authorization: Bearer " + self.secret)
+        headers.extend(["", ""])
         with open(self.pipe, "r+b", buffering=0) as stream:
             stream.write("\r\n".join(headers).encode("ascii") + payload)
             response = http.client.HTTPResponse(PipeSocket(stream))

@@ -1,0 +1,28 @@
+# 字段参考，所有文件路径均须在本机替换；不包含订阅地址或凭据。
+sources:
+  primary: primary.yaml
+  bulk: bulk.yaml
+budgets:
+  primary: {unit: GiB, warning: 200, threshold: 220}
+  bulk: {unit: GiB, warning: 400, threshold: 450}
+runtime:
+  adapter: verge
+  core: C:/LOCAL/mihomo.exe
+  home: C:/LOCAL/runtime
+  config: C:/LOCAL/runtime/config.yaml
+  controller_pipe: '\\.\pipe\LOCAL_MIHOMO_PIPE'
+  profile: C:/LOCAL/client
+  merge: C:/LOCAL/client/profiles/merge.yaml
+  script: C:/LOCAL/client/profiles/script.js
+  base_profile: bulk.yaml
+  registry: C:/LOCAL/client/profiles.yaml
+  billing_profiles: {primary: LOCAL_PRIMARY_UID, bulk: LOCAL_BULK_UID}
+  source_labels: {primary: Primary, bulk: Bulk}
+  default_multipliers: {primary: null, bulk: 1}
+  base_providers: {primary: Primary Local, bulk: Bulk Local}
+  measurements: measurements.json
+  service_measurements: service-measurements.json
+  legacy_state: legacy-state.json
+  test_interface: LOCAL_NETWORK_INTERFACE
+  task: LOCAL_EXISTING_TASK
+  manual_groups: {}

@@ -150,7 +150,8 @@ def update_ledger(state, snapshot, multipliers):
         return next_state
     actual = total - state["base_counter"]
     unknown = max(0, actual - state["lag_actual"] - state["lag_other"])
-    upper = unknown * max(multipliers.values()) + state["lag_weighted"]
+    upper = unknown * max(multipliers.values()) + state["lag_weighted"] + state.get("carry_bytes", 0)
+    upper = math.ceil(max(state.get("upper_bound_bytes", 0), upper))
     next_state.update(upper_bound_bytes=upper, last_counter=total,
                       lag_actual=state["observed_actual"], lag_other=state["observed_other"],
                       lag_weighted=state["observed_weighted"])
@@ -170,3 +171,37 @@ def update_ledger(state, snapshot, multipliers):
     if state["baseline_bytes"] + upper >= state["threshold_bytes"]:
         next_state.update(blocked=True, blocked_reason="conservative_budget_threshold")
     return next_state
+
+
+def counter_segment(ledger, snapshot):
+    next_ledger = new_ledger(ledger["baseline_bytes"], ledger["total_bytes"], ledger["threshold_bytes"], snapshot)
+    next_ledger.update(carry_bytes=ledger["upper_bound_bytes"], upper_bound_bytes=ledger["upper_bound_bytes"],
+                       blocked=ledger["blocked"])
+    for key in ("blocked_reason", "billing_observed_at", "billing_version", "warning_bytes", "billing_bridge_method", "max_multiplier"):
+        if key in ledger:
+            next_ledger[key] = ledger[key]
+    return next_ledger
+
+
+def limited_candidates(rows, preferred_country="", preferred_exit_id=None, limit=4):
+    # 保留当前出口、另一入口、另一来源和其他国家，不能用四个同入口别名充当备用。
+    if len(rows) <= limit:
+        return rows
+    selected = [rows[0]]
+    first = rows[0]
+    predicates = [
+        lambda row: row.get("ingress_id") != first.get("ingress_id") and
+                    (row.get("exit_id") == preferred_exit_id or row.get("exit_country") == preferred_country),
+        lambda row: row["source"] != first["source"] and row.get("exit_country") == preferred_country,
+        lambda row: row.get("exit_country") != preferred_country,
+    ]
+    for predicate in predicates:
+        candidate = next((row for row in rows if row not in selected and predicate(row)), None)
+        if candidate and len(selected) < limit:
+            selected.append(candidate)
+    for row in rows:
+        if len(selected) >= limit:
+            break
+        if row not in selected:
+            selected.append(row)
+    return selected

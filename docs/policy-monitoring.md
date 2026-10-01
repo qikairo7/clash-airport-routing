@@ -35,7 +35,7 @@ evidence:
 
 公开后台接管已经由本项目生成并加载的**独立 Mihomo 完整配置**，生成时会替换节点、策略组、providers 与规则。基础 DNS、TUN 等字段通过 `base` 保留。先按[部署指南](deployment.md)完成加载和实际业务验证，再启用后台。
 
-Clash Verge Rev 的增强片段、生成文件和持久脚本有不同职责。不要让独立后台覆盖客户端生成文件或 merge 片段。`tools/verge_policy.js` 导出 `applyRoutingPolicy(config)`，供现有持久脚本调用；输入 `x-routing-policy.version: 1`，`groups` 中每项提供自动组 `name` 与有序 `layers: [{provider, names}]`，可选 `direct` 叶节点列表；顶层 `blocked_nodes`、`blocked_providers` 指定锁定范围。它仅转换配置，客户端持久更新、重载和后台台账仍需适配。适配前读取现有调用链并保留网络字段。
+Clash Verge Rev 的增强片段、生成文件和持久脚本有不同职责。独立后台不能覆盖客户端增强片段；使用已实现的 [Verge 适配器](verge-runtime.md)。`tools/verge_policy.js` 导出 `applyRoutingPolicy(config)`，输入 `x-routing-policy.version: 1`，`groups` 中提供自动组 `name` 与有序 `layers: [{provider, names}]`，可选 `direct` 叶节点列表；`stable: true` 和 `manual_groups` 创建 select 业务入口与 fallback 候选子组。顶层 `blocked_nodes`、`blocked_providers` 指定锁定范围。
 
 将 [运行与账单字段示例](../examples/runtime.policy.example.yaml) 合并到真实设置中。`home`、`config`、`persistent_config` 相对于设置文件；`core` 使用内核可执行文件的绝对路径。完整运行配置必须位于 `home` 中，`persistent_config` 省略时与 `config` 相同。内核用绝对路径的 `-f` 启动，以便确认唯一进程身份。
 
@@ -75,7 +75,7 @@ Clash Verge Rev 的增强片段、生成文件和持久脚本有不同职责。�
 # 核对来源、实际请求与台账后，重新启动 run 或既有计划任务。
 ```
 
-刷新保留相同预算来源，把旧台账与内核身份加入 `billing_history`，再建立新基线。不能复用旧时间、删除预算来源或删除台账来绕过保护。重启内核后也需新账单基线。新基线低于阈值才会解除预算锁定；恢复配置仍遵守现有连接的部署限制。
+刷新保留相同预算来源，把旧台账与内核身份加入 `billing_history`，并通过刷新前计数检查点保守衔接新基线。不能复用旧时间、删除预算来源或删除台账来绕过保护。意外重启内核需要启动之后的新账单；受控重启保存旧累计并建立新计数段。新基线加衔接估算低于阈值才会解除预算锁定；恢复配置仍遵守现有连接的部署限制。`policy.stable_ai: true` 启用最多四个候选的稳定 AI 入口，使用共用的选择管理流程；未启用时保持原配置结构。
 
 部署产物在设置旁的 `policy-output/`，候选校验在内核工作目录的 `policy-staging/`。首次正式配置和被覆盖的 provider 文件备份到 `policy-backup/`。Mihomo 校验失败不改正式文件；控制器重载失败恢复本次修改前文件并再次重载。恢复原配置时先停后台，把备份的完整配置与 providers 手动恢复到对应位置，用 `Mihomo -t` 校验并按现有启动机制重载，最后读取运行态与实际链路。保留台账，避免恢复文件被下一轮后台立即覆盖。
 

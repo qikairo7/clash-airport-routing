@@ -12,6 +12,7 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install -r requirements.txt
       - run: python -m unittest discover -s tests -v
+      - run: node --check tools/verge_policy.js && node --check tools/evaluate_verge.cjs
       - run: python tools/build.py --settings examples/settings.policy.example.yaml --demo
       - run: python tools/build.py --settings examples/settings.example.yaml --demo
       - run: python tools/render_rule_diagrams.py --check

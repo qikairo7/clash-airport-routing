@@ -1,30 +1,20 @@
 import argparse
 import copy
-from datetime import datetime, timezone
 import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import time
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 
 import yaml
-import psutil
 
-from build import CAPACITY, INTERACTIVE, ROOT, SERVICES, build, read_yaml
-from controller import Controller
-from policy import byte_amount, new_ledger, observe_health, policy_reload_allowed, update_ledger, utc
-
-
-def save(path, state):
-    pending = path.with_suffix(".pending.json")
-    pending.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
-    pending.replace(path)
-
-
-def resolve(base, value):
-    return (base / value).resolve()
+from build import CAPACITY, INTERACTIVE, ROOT, SERVICES, build
+from monitor import Monitor, now, read_yaml, resolve, save
+from availability import Availability
+from policy import observe_health, policy_reload_allowed, utc
 
 
 def specifications():
@@ -34,103 +24,21 @@ def specifications():
     return values
 
 
-class Watcher:
+class Watcher(Availability, Monitor):
     def __init__(self, path):
-        self.path = Path(path).resolve()
-        if ROOT / "local" not in self.path.parents:
-            raise ValueError("监测设置必须放在被忽略的 local/ 内")
-        self.settings = read_yaml(self.path)
+        super().__init__(path)
         if not self.settings.get("policy"):
             raise ValueError("后台监测需要显式启用 policy 和节点测量记录")
-        self.runtime = self.settings["runtime"]
-        self.api = Controller(self.runtime.get("controller_url"), self.runtime.get("controller_pipe"),
-                              self.runtime.get("secret_env", "MIHOMO_SECRET"))
-        self.home = resolve(self.path.parent, self.runtime["home"])
-        self.live_config = resolve(self.path.parent, self.runtime["config"])
         self.persistent = resolve(self.path.parent, self.runtime.get("persistent_config", self.runtime["config"]))
-        if self.home not in self.live_config.parents:
-            raise ValueError("运行配置必须位于声明的 Mihomo 工作目录内")
-        for path in {self.live_config, self.persistent}:
-            existing = read_yaml(path)
-            if not existing.get("proxy-groups"):
-                raise ValueError("目标必须是完整 Mihomo 配置；不能把 Verge 的增强片段当完整配置覆盖")
-        self.state_path = self.path.with_name("policy-state.json")
+        for target in {self.live_config, self.persistent}:
+            if not read_yaml(target).get("proxy-groups"):
+                raise ValueError("目标必须是完整 Mihomo 配置，不能覆盖 Verge 增强片段")
         self.specs = specifications()
         for source in self.settings.get("budgets", {}):
             original = read_yaml(resolve(self.path.parent, self.settings["sources"][source]))
             mapped = {node["name"] for node in self.settings["nodes"] if node["source"] == source}
             if any(node["name"] not in mapped for node in original["proxies"]):
                 raise ValueError("预算需要该来源全部节点的倍率，包括手动与未验收节点")
-
-    def identity(self):
-        matches = []
-        core_name = Path(self.runtime["core"]).name.lower()
-        for process in psutil.process_iter(["name", "pid", "create_time", "cmdline"]):
-            try:
-                info = process.info
-                if not info["name"] or info["name"].lower() != core_name:
-                    continue
-                arguments = info["cmdline"] or []
-                if "-f" not in arguments or arguments.index("-f") + 1 >= len(arguments):
-                    continue
-                config_argument = Path(arguments[arguments.index("-f") + 1])
-                if config_argument.is_absolute() and config_argument.resolve() == self.live_config:
-                    matches.append([info["pid"], info["create_time"]])
-            except (psutil.AccessDenied, psutil.NoSuchProcess):
-                continue
-        if len(matches) != 1:
-            raise RuntimeError("无法唯一确认内核进程身份；需要用绝对路径的 -f 启动 Mihomo")
-        return matches[0]
-
-    def billing(self, snapshot):
-        budgets = {}
-        for source, budget in self.settings.get("budgets", {}).items():
-            if source not in self.settings["sources"]:
-                raise ValueError("预算引用了不存在的来源")
-            age = (datetime.now(timezone.utc) - utc(budget["observed_at"])).total_seconds()
-            if not 0 <= age <= 3600:
-                raise ValueError("账单时间位于未来或超过一小时；需要先核对当前用量")
-            unit = budget["unit"]
-            budgets[source] = new_ledger(byte_amount(budget["used"], unit), byte_amount(budget["total"], unit),
-                                          byte_amount(budget["threshold"], unit), snapshot)
-            budgets[source]["billing_observed_at"] = utc(budget["observed_at"]).isoformat()
-        if not budgets:
-            raise ValueError("至少填写一个已经核验的订阅预算")
-        return budgets
-
-    def initialize(self):
-        if self.state_path.exists():
-            raise ValueError("已有台账，不允许重新初始化抹掉流量或保护锁")
-        snapshot = self.api.request("GET", "/connections")
-        budgets = self.billing(snapshot)
-        state = {"version": 1, "budgets": budgets, "health": {}, "preferences": {}, "last_reload": None,
-                 "core_identity": self.identity(),
-                 "created_at": datetime.now(timezone.utc).isoformat(), "error": None}
-        save(self.state_path, state)
-
-    def refresh_billing(self):
-        state = json.loads(self.state_path.read_text(encoding="utf-8"))
-        snapshot = self.api.request("GET", "/connections")
-        budgets = self.billing(snapshot)
-        if set(budgets) != set(state["budgets"]):
-            raise ValueError("刷新账单必须保留已有预算来源，不能删除保护台账")
-        for source, ledger in budgets.items():
-            previous_time = state["budgets"][source].get("billing_observed_at")
-            if previous_time and utc(ledger["billing_observed_at"]) <= utc(previous_time):
-                raise ValueError("刷新账单需要更新的供应商账单记录，不能重复使用旧基线")
-        state.setdefault("billing_history", []).append({"at": datetime.now(timezone.utc).isoformat(),
-                                                        "budgets": state["budgets"], "core_identity": state["core_identity"]})
-        state.update(budgets=budgets, core_identity=self.identity(), error=None,
-                     billing_refreshed_at=datetime.now(timezone.utc).isoformat())
-        save(self.state_path, state)
-
-    def status(self):
-        state = json.loads(self.state_path.read_text(encoding="utf-8"))
-        fields = {"baseline_bytes", "total_bytes", "threshold_bytes", "upper_bound_bytes", "blocked", "blocked_reason"}
-        return {"updated_at": state.get("updated_at"), "last_reload": state.get("last_reload"),
-                "reload_deferred": state.get("reload_deferred", False), "error": state.get("error"),
-                "budgets": {source: {key: value for key, value in ledger.items() if key in fields}
-                            for source, ledger in state["budgets"].items()}}
 
     def health(self, state, config):
         providers = self.api.request("GET", "/providers/proxies")["providers"]
@@ -148,25 +56,23 @@ class Watcher:
                     if history:
                         sample = history[-1]
                         observed[node["name"]] = observe_health(observed.get(node["name"], {}), sample["delay"] > 0, sample["time"])
-            # 被移出自动池的节点仍在完整手动目录；恢复检查最多每轮两次。
             for alias, health in list(observed.items()):
-                if not health.get("quarantined") or checked >= 2:
+                if not health.get("quarantined") or checked >= 2 or alias not in nodes:
                     continue
-                if (datetime.now(timezone.utc) - utc(health["last_sample_at"])).total_seconds() < 60:
+                if (utc(now()) - utc(health["last_sample_at"])).total_seconds() < 60:
                     continue
                 if state["budgets"].get(nodes[alias]["source"], {}).get("blocked"):
                     continue
                 api = "/proxies/" + quote(alias, safe="") + "/delay?url=" + quote(url, safe="") + "&timeout=5000&expected=" + str(status)
                 try:
-                    result = self.api.request("GET", api)
-                    passed = result.get("delay", 0) > 0
+                    passed = self.api.request("GET", api).get("delay", 0) > 0
                 except (HTTPError, RuntimeError):
                     passed = False
-                observed[alias] = observe_health(health, passed, datetime.now(timezone.utc).isoformat())
+                observed[alias] = observe_health(health, passed, now())
                 checked += 1
+        self.active_checks = checked
 
     def deploy(self, generated):
-        # 先检查待部署的 providers，再写完整配置；备份放在 local/。
         backup = self.path.parent / "policy-backup"
         backup.mkdir(exist_ok=True)
         for index, path in enumerate(dict.fromkeys([self.live_config, self.persistent])):
@@ -216,68 +122,92 @@ class Watcher:
         if any(group["name"] not in actual for group in generated["proxy-groups"]):
             raise RuntimeError("内核没有加载全部策略组")
 
-    def step(self):
-        state = json.loads(self.state_path.read_text(encoding="utf-8"))
+    def apply_pending(self, force=False):
+        state = self.load()
+        snapshot = self.account(state)
         settings = copy.deepcopy(self.settings)
-        snapshot = self.api.request("GET", "/connections")
-        if self.identity() != state["core_identity"]:
-            for ledger in state["budgets"].values():
-                ledger.update(blocked=True, blocked_reason="core_restart_requires_new_billing_baseline")
-        for source, ledger in state["budgets"].items():
-            multipliers = {node["alias"]: node["multiplier"] for node in settings["nodes"] if node["source"] == source}
-            state["budgets"][source] = update_ledger(ledger, snapshot, multipliers)
-        save(self.state_path, state)
         current = read_yaml(self.live_config)
         self.health(state, current)
         settings["policy"]["health"] = state["health"]
-        settings["policy"]["blocked_sources"] = [source for source, budget in state["budgets"].items() if budget["blocked"]]
-        current_groups = self.api.request("GET", "/proxies")["proxies"]
-        metadata = {node["alias"]: node for node in settings["nodes"]}
-        for service in SERVICES:
-            choice = current_groups.get(service["name"], {}).get("now")
-            if not choice and service["name"] in current_groups:
-                choice = self.api.request("GET", "/proxies/" + quote(service["name"], safe="")).get("now")
-            node = metadata.get(choice, {})
-            if node.get("exit_country") and not state["health"].get(service["id"], {}).get(choice, {}).get("quarantined"):
-                state["preferences"][service["id"]] = {"preferred_country": node["exit_country"], "preferred_exit_id": node.get("exit_id")}
+        settings["policy"]["blocked_sources"] = [source for source, ledger in state["budgets"].items() if ledger["blocked"]]
         settings["policy"]["services"] = {**settings["policy"].get("services", {}), **state["preferences"]}
         generated_settings = self.path.with_name("settings.policy-generated.yaml")
         generated_settings.write_text(yaml.safe_dump(settings, allow_unicode=True, sort_keys=False), encoding="utf-8")
         generated = build(generated_settings, self.path.parent / "policy-output")
-        budget_changed = bool(settings["policy"]["blocked_sources"])
-        state["reload_deferred"] = generated != current and not policy_reload_allowed(snapshot, budget_changed)
-        if generated != current and not state["reload_deferred"]:
-            self.deploy(generated)
-            state["last_reload"] = datetime.now(timezone.utc).isoformat()
+        definitions = {service["name"]: {"ai": True, "url": service["health"], "status": service["head"]}
+                       for service in SERVICES if service["auto"] and service.get("health")}
+        state["selection"] = {}
+        metadata = {node["alias"]: node for node in settings["nodes"]}
+        for group in generated["proxy-groups"]:
+            if group["name"].endswith(" 候选"):
+                rows = []
+                for provider in group.get("use", []):
+                    names = read_yaml(self.path.parent / "policy-output" / generated["proxy-providers"][provider]["path"])["proxies"]
+                    rows.extend(metadata[node["name"]] for node in names)
+                state["selection"][group["name"][:-3]] = rows
         blocked = {node["alias"] for node in settings["nodes"] if node["source"] in settings["policy"]["blocked_sources"]}
+        changed = generated != current
+        state["reload_deferred"] = changed and not (force or policy_reload_allowed(snapshot, bool(blocked)))
+        if changed and not state["reload_deferred"]:
+            self.deploy(generated)
+            state["last_reload"] = now()
         for row in (self.api.request("GET", "/connections").get("connections") or []):
             if blocked.intersection(row.get("chains", [])):
                 self.api.request("DELETE", "/connections/" + quote(row["id"], safe=""))
-        state["updated_at"] = datetime.now(timezone.utc).isoformat()
-        state["error"] = None
-        save(self.state_path, state)
+        if settings["policy"].get("stable_ai"):
+            self.pin(state, definitions, self.api.request("GET", "/providers/proxies")["providers"])
+        self.finish(state)
+
+    def step(self):
+        self.apply_pending()
+
+
+def create_watcher(path):
+    if read_yaml(path).get("runtime", {}).get("adapter") == "verge":
+        from verge import VergeWatcher
+        return VergeWatcher(path)
+    return Watcher(path)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="本机策略、账单和维护；设置与台账仅保留在 local/")
+    parser.add_argument("mode", choices=["initialize", "migrate", "refresh-billing", "import-local-billing", "status",
+                                          "once", "run", "apply-pending", "controlled-restart", "recheck", "restore", "recover-ledger"])
+    parser.add_argument("--settings", default=str(ROOT / "local/settings.yaml"))
+    parser.add_argument("--confirm-cycle", action="store_true")
+    args = parser.parse_args()
+    settings_path = Path(args.settings).resolve()
+    if sys.stderr is None and (ROOT / "local").resolve() in settings_path.parents:
+        # pythonw 没有控制台，启动失败也必须留下本机诊断记录。
+        sys.stderr = settings_path.with_name("watch-error.log").open("a", encoding="utf-8")
+    watcher = create_watcher(args.settings)
+    if args.mode == "status":
+        print(json.dumps(watcher.status(), ensure_ascii=False))
+        return
+    with watcher.exclusive():
+        if args.mode == "refresh-billing":
+            watcher.refresh_billing(args.confirm_cycle)
+        elif args.mode in {"initialize", "migrate", "controlled-restart", "recover-ledger"}:
+            getattr(watcher, args.mode.replace("-", "_"))()
+        elif args.mode == "import-local-billing":
+            print(json.dumps(watcher.import_local_billing(args.confirm_cycle), ensure_ascii=False))
+        elif args.mode == "apply-pending":
+            watcher.apply_pending(force=True)
+        elif args.mode in {"recheck", "restore"}:
+            getattr(watcher, args.mode)()
+        elif args.mode == "once":
+            watcher.step()
+        else:
+            while True:
+                started = time.monotonic()
+                try:
+                    watcher.step()
+                except (OSError, RuntimeError, ValueError, HTTPError, URLError) as error:
+                    state = watcher.load()
+                    state.update(error=type(error).__name__, error_at=now())
+                    save(watcher.state_path, state)
+                time.sleep(max(0, 10 - (time.monotonic() - started)))
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="监测已经接入公开生成器的 Mihomo 配置；设置与台账仅保留在 local/")
-    parser.add_argument("mode", choices=["initialize", "refresh-billing", "status", "once", "run"])
-    parser.add_argument("--settings", default=str(ROOT / "local/settings.yaml"))
-    args = parser.parse_args()
-    watcher = Watcher(args.settings)
-    if args.mode == "initialize":
-        watcher.initialize()
-    elif args.mode == "refresh-billing":
-        watcher.refresh_billing()
-    elif args.mode == "status":
-        print(json.dumps(watcher.status(), ensure_ascii=False))
-    elif args.mode == "once":
-        watcher.step()
-    else:
-        while True:
-            try:
-                watcher.step()
-            except (OSError, RuntimeError, ValueError, HTTPError, URLError) as error:
-                state = json.loads(watcher.state_path.read_text(encoding="utf-8"))
-                state.update(error=type(error).__name__, error_at=datetime.now(timezone.utc).isoformat())
-                save(watcher.state_path, state)
-            time.sleep(10)
+    main()
