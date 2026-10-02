@@ -169,6 +169,30 @@ def create_watcher(path):
     return Watcher(path)
 
 
+def run_watcher(settings_path):
+    startup = settings_path.with_name("watch-startup.json")
+    while True:
+        try:
+            watcher = create_watcher(settings_path)
+            watcher.identity()
+            watcher.api.request("GET", "/configs")
+            break
+        except (OSError, RuntimeError, ValueError, HTTPError, URLError) as error:
+            save(startup, {"at": now(), "ready": False, "phase": "waiting_for_core_and_files", "error": type(error).__name__})
+            time.sleep(10)
+    save(startup, {"at": now(), "ready": True})
+    with watcher.exclusive():
+        while True:
+            started = time.monotonic()
+            try:
+                watcher.step()
+            except (OSError, RuntimeError, ValueError, HTTPError, URLError) as error:
+                state = watcher.load()
+                state.update(error=type(error).__name__, error_at=now())
+                save(watcher.state_path, state)
+            time.sleep(max(0, 10 - (time.monotonic() - started)))
+
+
 def main():
     parser = argparse.ArgumentParser(description="本机策略、账单和维护；设置与台账仅保留在 local/")
     parser.add_argument("mode", choices=["initialize", "migrate", "refresh-billing", "import-local-billing", "status",
@@ -180,6 +204,11 @@ def main():
     if sys.stderr is None and (ROOT / "local").resolve() in settings_path.parents:
         # pythonw 没有控制台，启动失败也必须留下本机诊断记录。
         sys.stderr = settings_path.with_name("watch-error.log").open("a", encoding="utf-8")
+    if args.mode == "run":
+        if (ROOT / "local").resolve() not in settings_path.parents:
+            raise ValueError("监测设置必须位于本项目被忽略的 local/ 内")
+        run_watcher(settings_path)
+        return
     watcher = create_watcher(args.settings)
     if args.mode == "status":
         print(json.dumps(watcher.status(), ensure_ascii=False))
@@ -197,16 +226,6 @@ def main():
             getattr(watcher, args.mode)()
         elif args.mode == "once":
             watcher.step()
-        else:
-            while True:
-                started = time.monotonic()
-                try:
-                    watcher.step()
-                except (OSError, RuntimeError, ValueError, HTTPError, URLError) as error:
-                    state = watcher.load()
-                    state.update(error=type(error).__name__, error_at=now())
-                    save(watcher.state_path, state)
-                time.sleep(max(0, 10 - (time.monotonic() - started)))
 
 
 if __name__ == "__main__":

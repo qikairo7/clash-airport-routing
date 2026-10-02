@@ -116,7 +116,9 @@ class VergeWatcher(Availability, Monitor):
                 definitions["AI " + service["name"]] = {"candidates": service["candidates"], "ai": True,
                                                          "url": service["url"], "status": service["status"]}
         for name, spec in definitions.items():
-            group = next(row for row in live["proxy-groups"] if row["name"] in {name, name + " 候选"} and row.get("url"))
+            group = next((row for row in live["proxy-groups"] if row["name"] in {name, name + " 候选"} and row.get("url")), None)
+            if group is None:
+                raise ValueError("当前订阅未包含托管业务组；保留用户选择并等待托管配置")
             # 增强脚本可以将首页换成 robots.txt，监测必须使用实际加载的地址。
             spec["url"] = group["url"]
             spec["status"] = group.get("expected-status", spec.get("status", 200))
@@ -434,10 +436,25 @@ class VergeWatcher(Availability, Monitor):
         self.inventory()
         state = self.load()
         snapshot = self.account(state)
-        self.sync_sources()
         merge, live = read_yaml(self.merge_path), read_yaml(self.live_config)
+        required = {"开发", "通用海外", "AI ChatGPT Codex"}
+        managed = required.issubset({row["name"] for row in live.get("proxy-groups", [])})
+        state["active_profile_managed"] = managed
+        if not managed:
+            state.update(reload_deferred=True, pending_reason="当前使用其他订阅；保留用户选择并等待托管配置")
+            self.finish(state)
+            return
+        self.sync_sources()
         self.runtime_versions(live)
         definitions = self.definitions(merge, live)
+        providers = self.api.request("GET", "/providers/proxies")["providers"]
+        referenced = {provider for group in live["proxy-groups"]
+                      if group["name"] in definitions or group["name"].removesuffix(" 候选") in definitions
+                      for provider in group.get("use", [])}
+        if any(name not in providers or not providers[name].get("proxies") for name in referenced):
+            state.update(reload_deferred=True, pending_reason="等待订阅节点目录加载；暂不判定业务故障")
+            self.finish(state)
+            return
         providers = self.health(state, definitions)
         if not any(ledger["blocked"] for ledger in state["budgets"].values()):
             try:

@@ -183,6 +183,33 @@ def counter_segment(ledger, snapshot):
     return next_ledger
 
 
+def resume_counter_segment(ledger, snapshot, multipliers):
+    if not multipliers or any(not math.isfinite(value) or value <= 0 for value in multipliers.values()):
+        raise ValueError("重启计数衔接需要完整的正数倍率")
+    counters = [snapshot["downloadTotal"], snapshot["uploadTotal"]]
+    if any(not math.isfinite(value) or value < 0 for value in counters):
+        raise ValueError("新内核累计计数需要非负有限数值")
+    next_ledger = counter_segment(ledger, snapshot)
+    # 新内核已经发生的流量尚未采样归属，整体按最高倍率估算一次。
+    # 关机前最后一次采样之后的用量仍需供应商账单校准，不能声称完整上界。
+    historical_multiplier = ledger.get("max_multiplier", 0)
+    if not math.isfinite(historical_multiplier) or historical_multiplier < 0:
+        raise ValueError("历史最高倍率需要非负有限数值")
+    multiplier = max(max(multipliers.values()), historical_multiplier)
+    additional = math.ceil(sum(counters) * multiplier)
+    next_ledger["carry_bytes"] += additional
+    next_ledger["upper_bound_bytes"] += additional
+    next_ledger["max_multiplier"] = max(ledger.get("max_multiplier", 0), multiplier)
+    restart_reasons = {"core_restart_requires_new_billing_baseline", "counter_reset_requires_new_billing_baseline"}
+    if ledger.get("blocked_reason") in restart_reasons:
+        next_ledger["blocked"] = False
+        next_ledger.pop("blocked_reason", None)
+    reached = next_ledger["baseline_bytes"] + next_ledger["upper_bound_bytes"] >= next_ledger["threshold_bytes"]
+    if reached and not next_ledger["blocked"]:
+        next_ledger.update(blocked=True, blocked_reason="conservative_budget_threshold")
+    return next_ledger
+
+
 def limited_candidates(rows, preferred_country="", preferred_exit_id=None, limit=4):
     # 保留当前出口、另一入口、另一来源和其他国家，不能用四个同入口别名充当备用。
     if len(rows) <= limit:

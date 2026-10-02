@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from monitor import ROOT, Monitor, save, state_digest
-from policy import counter_segment, limited_candidates, new_ledger, update_ledger
+from policy import counter_segment, limited_candidates, new_ledger, resume_counter_segment, update_ledger
 from verge import VergeWatcher, fingerprint, initial_transport, metadata_name
 from availability import Availability
 
@@ -57,6 +57,16 @@ class MonitorTests(unittest.TestCase):
         state = {"core_identity": identity, "created_at": (observed - timedelta(minutes=10)).isoformat(),
                  "budgets": {"primary": {"upper_bound_bytes": 100, "max_multiplier": 4}}}
         return monitor, observed, identity, state
+
+    def test_subscription_configuration_without_managed_groups_is_explicit_error(self):
+        watcher = VergeWatcher.__new__(VergeWatcher)
+        watcher.runtime = {}
+        ordinary = ["开发", "GitHub API", "GitHub 文件", "容器", "社交", "Telegram 线路", "媒体大流量", "通用海外"]
+        pools = {name: {"candidates": []} for name in ordinary}
+        pools.update({name: {"active_candidates": [], "milk_backup": []} for name in ["OpenAI", "Claude", "Google"]})
+        merge = {"x-verified-pools": {"pools": pools}, "x-service-pools": []}
+        with self.assertRaises(ValueError):
+            watcher.definitions(merge, {"proxy-groups": []})
 
     def test_billing_bridge_uses_last_checkpoint_before_refresh_and_historical_multiplier(self):
         monitor, observed, identity, state = self.calibration_inputs()
@@ -108,6 +118,76 @@ class MonitorTests(unittest.TestCase):
         first.update(lag_actual=100, lag_weighted=100)
         next_ledger = update_ledger(first, {"downloadTotal": 100, "uploadTotal": 0}, {"known": 3})
         self.assertGreaterEqual(next_ledger["upper_bound_bytes"], first["upper_bound_bytes"])
+
+    def test_restart_carries_previous_usage_and_entire_new_counter_once(self):
+        ledger = new_ledger(100, 1000, 900, {"downloadTotal": 500, "uploadTotal": 0})
+        ledger.update(upper_bound_bytes=200, blocked=True, blocked_reason="core_restart_requires_new_billing_baseline")
+        snapshot = {"downloadTotal": 20, "uploadTotal": 10}
+        fresh = resume_counter_segment(ledger, snapshot, {"known": 3, "other": 1})
+        self.assertEqual(fresh["baseline_bytes"], 100)
+        self.assertEqual(fresh["upper_bound_bytes"], 290)
+        self.assertFalse(fresh["blocked"])
+        self.assertNotIn("blocked_reason", fresh)
+        self.assertEqual(update_ledger(fresh, snapshot, {"known": 3})["upper_bound_bytes"], 290)
+        self.assertEqual(ledger["upper_bound_bytes"], 200)
+
+    def test_repeated_restarts_preserve_all_previous_segments(self):
+        ledger = new_ledger(100, 1000, 900, {"downloadTotal": 500, "uploadTotal": 0})
+        ledger.update(upper_bound_bytes=200)
+        fresh = resume_counter_segment(ledger, {"downloadTotal": 20, "uploadTotal": 10}, {"known": 3})
+        fresh = update_ledger(fresh, {"downloadTotal": 30, "uploadTotal": 10}, {"known": 3})
+        resumed = resume_counter_segment(fresh, {"downloadTotal": 5, "uploadTotal": 0}, {"known": 3})
+        self.assertEqual(resumed["upper_bound_bytes"], 335)
+        unchanged = update_ledger(resumed, {"downloadTotal": 5, "uploadTotal": 0}, {"known": 3})
+        self.assertEqual(unchanged["upper_bound_bytes"], 335)
+
+    def test_restart_new_increment_is_accounted_after_resumed_counter(self):
+        ledger = new_ledger(100, 1000, 900, {"downloadTotal": 500, "uploadTotal": 0})
+        ledger.update(upper_bound_bytes=200, blocked=True, blocked_reason="counter_reset_requires_new_billing_baseline")
+        fresh = resume_counter_segment(ledger, {"downloadTotal": 20, "uploadTotal": 10}, {"known": 3})
+        advanced = update_ledger(fresh, {"downloadTotal": 30, "uploadTotal": 10}, {"known": 3})
+        self.assertEqual(advanced["upper_bound_bytes"], 320)
+        self.assertFalse(advanced["blocked"])
+
+    def test_restart_preserves_real_budget_and_unrelated_locks(self):
+        for reason in ["conservative_budget_threshold", "controlled_restart_gate", "manual_protection"]:
+            with self.subTest(reason=reason):
+                ledger = new_ledger(100, 1000, 900, {"downloadTotal": 500, "uploadTotal": 0})
+                ledger.update(upper_bound_bytes=200, blocked=True, blocked_reason=reason)
+                fresh = resume_counter_segment(ledger, {"downloadTotal": 10, "uploadTotal": 0}, {"known": 3})
+                self.assertTrue(fresh["blocked"])
+                self.assertEqual(fresh["blocked_reason"], reason)
+                self.assertEqual(fresh["upper_bound_bytes"], 230)
+
+    def test_restart_does_not_unlock_usage_that_reaches_threshold(self):
+        ledger = new_ledger(100, 1000, 900, {"downloadTotal": 500, "uploadTotal": 0})
+        ledger.update(upper_bound_bytes=770, blocked=True, blocked_reason="core_restart_requires_new_billing_baseline")
+        fresh = resume_counter_segment(ledger, {"downloadTotal": 10, "uploadTotal": 0}, {"known": 3})
+        self.assertEqual(fresh["upper_bound_bytes"], 800)
+        self.assertTrue(fresh["blocked"])
+        self.assertEqual(fresh["blocked_reason"], "conservative_budget_threshold")
+
+    def test_restart_preserves_already_exceeded_budget(self):
+        ledger = new_ledger(100, 1000, 900, {"downloadTotal": 500, "uploadTotal": 0})
+        ledger.update(upper_bound_bytes=850, blocked=True, blocked_reason="conservative_budget_threshold")
+        fresh = resume_counter_segment(ledger, {"downloadTotal": 10, "uploadTotal": 0}, {"known": 3})
+        self.assertEqual(fresh["upper_bound_bytes"], 880)
+        self.assertTrue(fresh["blocked"])
+        self.assertEqual(fresh["blocked_reason"], "conservative_budget_threshold")
+
+    def test_restart_rejects_invalid_new_counter_and_multiplier(self):
+        ledger = new_ledger(100, 1000, 900, {"downloadTotal": 500, "uploadTotal": 0})
+        with self.assertRaises(ValueError):
+            resume_counter_segment(ledger, {"downloadTotal": -1, "uploadTotal": 0}, {"known": 3})
+        with self.assertRaises(ValueError):
+            resume_counter_segment(ledger, {"downloadTotal": 1, "uploadTotal": 0}, {"known": float("nan")})
+
+    def test_restart_uses_historical_highest_multiplier(self):
+        ledger = new_ledger(100, 1000, 900, {"downloadTotal": 500, "uploadTotal": 0})
+        ledger.update(upper_bound_bytes=200, max_multiplier=5)
+        fresh = resume_counter_segment(ledger, {"downloadTotal": 10, "uploadTotal": 0}, {"known": 1})
+        self.assertEqual(fresh["upper_bound_bytes"], 250)
+        self.assertEqual(fresh["max_multiplier"], 5)
 
     def test_candidate_limit_keeps_ingress_source_and_country_backups(self):
         rows = [{"alias": str(i), "source": source, "exit_country": country, "ingress_id": ingress, "exit_id": exit_id}

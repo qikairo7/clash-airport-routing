@@ -1,5 +1,6 @@
 import ctypes
 import http.client
+import io
 import json
 import os
 from urllib.parse import urlsplit
@@ -11,7 +12,8 @@ class PipeSocket:
         self.stream = stream
 
     def makefile(self, mode):
-        return self.stream
+        # 命名管道单次读取可能短于 HTTP 声明长度，标准缓冲器负责补足读取。
+        return io.BufferedReader(self.stream)
 
 
 class Controller:
@@ -52,9 +54,12 @@ class Controller:
         headers.extend(["", ""])
         with open(self.pipe, "r+b", buffering=0) as stream:
             stream.write("\r\n".join(headers).encode("ascii") + payload)
-            response = http.client.HTTPResponse(PipeSocket(stream))
-            response.begin()
-            body = response.read()
-            if response.status >= 400:
-                raise RuntimeError(f"Mihomo 管理请求失败，HTTP {response.status}")
+            try:
+                response = http.client.HTTPResponse(PipeSocket(stream))
+                response.begin()
+                body = response.read()
+                if response.status >= 400:
+                    raise RuntimeError(f"Mihomo 管理请求失败，HTTP {response.status}")
+            except http.client.HTTPException:
+                raise RuntimeError("Mihomo 管理响应未完整收到，等待内核就绪后重试") from None
         return json.loads(body) if body else {}

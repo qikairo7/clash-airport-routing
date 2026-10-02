@@ -11,7 +11,7 @@ import psutil
 import yaml
 
 from controller import Controller
-from policy import byte_amount, counter_segment, new_ledger, update_ledger, utc
+from policy import byte_amount, counter_segment, new_ledger, resume_counter_segment, update_ledger, utc
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -143,18 +143,30 @@ class Monitor:
         state["checkpoints"] = [row for row in state["checkpoints"] if utc(row["at"]).timestamp() >= cutoff]
 
     def account(self, state):
-        snapshot = self.api.request("GET", "/connections")
         identity = self.identity()
-        if identity != state["core_identity"]:
-            for ledger in state["budgets"].values():
-                ledger.update(blocked=True, blocked_reason="core_restart_requires_new_billing_baseline")
+        snapshot = self.api.request("GET", "/connections")
+        if identity != self.identity():
+            raise RuntimeError("采样期间内核正在重启，本轮不修改台账")
+        total = snapshot["downloadTotal"] + snapshot["uploadTotal"]
+        restarted = identity != state["core_identity"] or any(total < ledger["last_counter"] for ledger in state["budgets"].values())
+        if restarted:
+            state.setdefault("counter_segments", []).append({
+                "at": now(), "core_identity": state["core_identity"],
+                "budgets": copy.deepcopy(state["budgets"]), "reason": "uncontrolled_restart"})
+            state.setdefault("accounting_gaps", []).append({
+                "last_checkpoint_at": state.get("checkpoints", [{}])[-1].get("at") if state.get("checkpoints") else None,
+                "new_core_started_at": datetime.fromtimestamp(identity[1], timezone.utc).isoformat(),
+                "noticed_at": now(), "reason": "shutdown_tail_not_observed", "needs_billing_calibration": True})
         for source, ledger in state["budgets"].items():
             multipliers = {node["alias"]: node["multiplier"] for node in self.settings["nodes"] if node["source"] == source}
             ledger["max_multiplier"] = max(ledger.get("max_multiplier", 0), max(multipliers.values()))
             multipliers["__unattributed_maximum__"] = ledger["max_multiplier"]
-            state["budgets"][source] = update_ledger(ledger, snapshot, multipliers)
-        if identity == state["core_identity"]:
-            self.checkpoint(state, snapshot)
+            state["budgets"][source] = (resume_counter_segment(ledger, snapshot, multipliers) if restarted
+                                        else update_ledger(ledger, snapshot, multipliers))
+        if restarted:
+            state["core_identity"] = identity
+            state["restart_resumed_at"] = now()
+        self.checkpoint(state, snapshot)
         save(self.state_path, state)
         return snapshot
 
@@ -282,12 +294,16 @@ class Monitor:
                 "pending_reason": state.get("pending_reason"), "error": state.get("error"),
                 "openai_common_exit": state.get("openai_common_exit"), "renewal_error": state.get("renewal_error"),
                 "services": state.get("service_status", {}), "alerts": state.get("alerts", []),
+                "accounting_gap_count": len(state.get("accounting_gaps", [])),
+                "active_profile_managed": state.get("active_profile_managed"),
                 "budgets": {source: {key: value for key, value in ledger.items() if key in fields}
                             for source, ledger in state["budgets"].items()}}
 
     def finish(self, state):
         state.update(updated_at=now(), error=None)
         state["alerts"] = []
+        if state.get("accounting_gaps"):
+            state["alerts"].append({"reason": "restart_accounting_gap_needs_billing_calibration"})
         for source, ledger in state["budgets"].items():
             if ledger["baseline_bytes"] + ledger["upper_bound_bytes"] >= ledger.get("warning_bytes", ledger["threshold_bytes"]):
                 state["alerts"].append({"source": source, "reason": "budget_warning_or_lock"})
